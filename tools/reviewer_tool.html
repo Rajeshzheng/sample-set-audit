@@ -1430,6 +1430,16 @@ body {
       fallback.style.display = 'none';
       dataReady = true;
       populateSelect(document.getElementById('selectL1'), l1Nodes, '-- Select L1 --');
+
+      // If user already logged in before uploading, trigger task loading now
+      if (reviewerName && reviewTasks.length > 0) {
+        loadFromLocalStorage();
+        let startIdx = 0;
+        for (let i = 0; i < reviewTasks.length; i++) {
+          if (!reviews[reviewTasks[i].task_id]) { startIdx = i; break; }
+        }
+        loadTask(startIdx);
+      }
     });
   }
 
