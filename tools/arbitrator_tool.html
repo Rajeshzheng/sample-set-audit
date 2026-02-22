@@ -486,6 +486,13 @@ body {
   animation: meshRotate 20s linear infinite;
 }
 
+.login-mosaic {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  display: grid; grid-template-columns: repeat(8, 1fr); grid-auto-rows: 1fr;
+  gap: 3px; opacity: 0.15; pointer-events: none;
+}
+.login-mosaic img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
 @keyframes meshRotate {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
@@ -585,6 +592,12 @@ body {
 
 <!-- Login Modal -->
 <div class="login-modal" id="loginModal" style="display:none;">
+  <div class="login-mosaic">
+    <img src="../assets/mosaic/m03.jpg" alt=""><img src="../assets/mosaic/m04.jpg" alt=""><img src="../assets/mosaic/m05.jpg" alt=""><img src="../assets/mosaic/m06.jpg" alt=""><img src="../assets/mosaic/m10.jpg" alt=""><img src="../assets/mosaic/m11.jpg" alt=""><img src="../assets/mosaic/m13.jpg" alt=""><img src="../assets/mosaic/m14.jpg" alt="">
+    <img src="../assets/mosaic/m16.jpg" alt=""><img src="../assets/mosaic/m17.jpg" alt=""><img src="../assets/mosaic/m18.jpg" alt=""><img src="../assets/mosaic/m20.jpg" alt=""><img src="../assets/mosaic/m21.jpg" alt=""><img src="../assets/mosaic/m22.jpg" alt=""><img src="../assets/mosaic/m27.jpg" alt=""><img src="../assets/mosaic/m29.jpg" alt="">
+    <img src="../assets/mosaic/m31.jpg" alt=""><img src="../assets/mosaic/m33.jpg" alt=""><img src="../assets/mosaic/m35.jpg" alt=""><img src="../assets/mosaic/m36.jpg" alt=""><img src="../assets/mosaic/m40.jpg" alt=""><img src="../assets/mosaic/m41.jpg" alt=""><img src="../assets/mosaic/m42.jpg" alt=""><img src="../assets/mosaic/m43.jpg" alt="">
+    <img src="../assets/mosaic/m44.jpg" alt=""><img src="../assets/mosaic/m45.jpg" alt=""><img src="../assets/mosaic/m46.jpg" alt=""><img src="../assets/mosaic/m47.jpg" alt=""><img src="../assets/mosaic/m48.jpg" alt=""><img src="../assets/mosaic/m50.jpg" alt=""><img src="../assets/mosaic/m51.jpg" alt=""><img src="../assets/mosaic/m56.jpg" alt="">
+  </div>
   <div class="login-card">
     <h2>欢迎使用仲裁工具</h2>
     <div class="login-subtitle">请输入您的姓名以开始</div>
