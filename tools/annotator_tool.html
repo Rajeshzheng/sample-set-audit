@@ -8,28 +8,47 @@
 <script src="../tasks/annotation_tasks_780.js"></script>
 <script src="../tasks/annotation_tasks_1000.js"></script>
 <script src="../tasks/assignment_manifest.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
+/* ===== OBSIDIAN STUDIO - AMBER GOLD THEME ===== */
 :root {
-  --bg: #1a1a2e;
-  --surface: #16213e;
-  --surface2: #1c2a4a;
-  --text: #e0e0e0;
-  --text-dim: #8899aa;
-  --accent: #4fc3f7;
-  --accent-hover: #81d4fa;
-  --green: #22c55e;
-  --red: #ef4444;
-  --orange: #f59e0b;
-  --yellow: #fbbf24;
-  --border: #2a3a5e;
-  --ai-bg: #2a2a3e;
-  --user-bg: #1a3a5e;
+  --bg: #0c0b10;
+  --surface: #14131a;
+  --surface2: #1c1b24;
+  --surface3: #26253a;
+  --text: #ece9e4;
+  --text-dim: #7a7888;
+  --accent: #e8a848;
+  --accent-hover: #f0be6c;
+  --accent-dim: rgba(232, 168, 72, 0.10);
+  --accent-glow: rgba(232, 168, 72, 0.25);
+  --green: #34d399;
+  --red: #fb7185;
+  --orange: #fb923c;
+  --yellow: #fde68a;
+  --border: rgba(255,255,255,0.06);
+  --border-accent: rgba(232, 168, 72, 0.20);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 24px rgba(0,0,0,0.4);
+  --shadow-lg: 0 8px 48px rgba(0,0,0,0.5);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+/* ===== CUSTOM SCROLLBAR ===== */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+
 body {
-  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Plus Jakarta Sans', 'Noto Sans SC', -apple-system, sans-serif;
   background: var(--bg);
   color: var(--text);
   height: 100vh;
@@ -38,11 +57,13 @@ body {
   overflow: hidden;
 }
 
-/* ===== TOP BAR ===== */
+/* ===== TOP BAR - FROSTED GLASS ===== */
 .top-bar {
-  background: var(--surface);
+  background: rgba(20, 19, 26, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
-  padding: 10px 20px;
+  padding: 12px 24px;
   display: flex;
   align-items: center;
   gap: 20px;
@@ -51,9 +72,10 @@ body {
 }
 
 .top-bar .title {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--accent);
+  letter-spacing: -0.02em;
   white-space: nowrap;
 }
 
@@ -67,15 +89,25 @@ body {
 .top-bar label {
   font-size: 13px;
   color: var(--text-dim);
+  font-weight: 500;
 }
 
 .top-bar select {
   background: var(--surface2);
   color: var(--text);
   border: 1px solid var(--border);
-  padding: 4px 8px;
-  border-radius: 4px;
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
   font-size: 13px;
+  font-family: 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.top-bar select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+  outline: none;
 }
 
 .top-bar .progress-text {
@@ -88,19 +120,25 @@ body {
   font-weight: 600;
 }
 
+/* ===== TAXONOMY LINK BAR ===== */
 .taxonomy-link {
-  font-size: 12px;
-  background: var(--surface);
-  padding: 4px 20px;
+  font-size: 11px;
+  background: rgba(20, 19, 26, 0.6);
+  padding: 6px 24px;
   border-bottom: 1px solid var(--border);
 }
 
 .taxonomy-link a {
   color: var(--accent);
   text-decoration: none;
+  font-weight: 500;
+  transition: var(--transition);
 }
 
-.taxonomy-link a:hover { text-decoration: underline; }
+.taxonomy-link a:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+}
 
 /* ===== MAIN CONTENT ===== */
 .main-content {
@@ -109,7 +147,7 @@ body {
   overflow: hidden;
 }
 
-/* Left Panel */
+/* ===== LEFT PANEL ===== */
 .left-panel {
   flex: 1;
   display: flex;
@@ -122,16 +160,18 @@ body {
   overflow: auto;
 }
 
+/* ===== IMAGE CONTAINER ===== */
 .image-container {
   max-width: 100%;
   max-height: calc(100vh - 250px);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #111;
-  border-radius: 8px;
-  overflow: hidden;
+  background: #08080c;
+  border-radius: var(--radius-md);
   border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
   position: relative;
   min-height: 200px;
   width: 100%;
@@ -150,6 +190,7 @@ body {
   padding: 40px;
 }
 
+/* ===== TASK INFO ===== */
 .task-info {
   margin-top: 12px;
   font-size: 13px;
@@ -163,66 +204,80 @@ body {
   font-size: 15px;
 }
 
-/* Right Panel */
+/* ===== RIGHT PANEL ===== */
 .right-panel {
   width: 480px;
   min-width: 400px;
   display: flex;
   flex-direction: column;
-  padding: 16px;
+  padding: 20px;
   overflow-y: auto;
-  gap: 14px;
+  gap: 16px;
 }
 
-/* AI Suggestion */
+/* ===== AI SUGGESTION PANEL ===== */
 .ai-suggestion {
-  background: var(--ai-bg);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 12px;
+  background: var(--accent-dim);
+  border: 1px solid var(--border-accent);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
 }
 
 .ai-suggestion .label {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-dim);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.08em;
+  font-weight: 600;
 }
 
 .ai-suggestion .path {
-  font-size: 14px;
-  color: #aaa;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--text);
   word-break: break-word;
+  line-height: 1.6;
+  padding: 4px 0;
 }
 
-.ai-suggestion .path.valid { color: var(--text); }
+.ai-suggestion .path.valid { color: var(--accent); font-weight: 500; }
 .ai-suggestion .path.invalid { color: var(--red); font-style: italic; }
 
 .ai-suggestion .ai-badge {
   display: inline-block;
-  background: #333;
-  color: #aaa;
-  font-size: 11px;
+  background: rgba(232, 168, 72, 0.15);
+  color: var(--accent);
+  font-size: 10px;
   padding: 2px 8px;
   border-radius: 10px;
-  margin-top: 4px;
+  margin-top: 8px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
 }
 
-/* Human ref */
+/* ===== HUMAN REFERENCE ===== */
 .human-ref {
   background: var(--surface2);
   border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 10px 12px;
+  border-left: 3px solid var(--green);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
   font-size: 13px;
   color: var(--text-dim);
   display: none;
+  line-height: 1.6;
 }
 
-.human-ref .path { color: var(--green); }
+.human-ref .path {
+  color: var(--green);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+}
 
-/* Level selectors */
+/* ===== LEVEL SELECTORS ===== */
 .selector-section {
   display: flex;
   flex-direction: column;
@@ -253,29 +308,32 @@ body {
   background: var(--surface2);
   color: var(--text);
   border: 1px solid var(--border);
-  padding: 7px 10px;
-  border-radius: 4px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
   font-size: 13px;
+  font-family: 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif;
   cursor: pointer;
+  transition: var(--transition);
   appearance: auto;
 }
 
 .level-select-wrapper select:disabled {
-  opacity: 0.4;
+  opacity: 0.35;
   cursor: not-allowed;
 }
 
 .level-select-wrapper select:focus {
   border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
   outline: none;
 }
 
 .level-select-wrapper select.user-selected {
   border-color: var(--accent);
-  background: var(--user-bg);
+  background: var(--accent-dim);
 }
 
-/* Search box for L3+ */
+/* ===== SEARCH BOX FOR L3+ ===== */
 .level-search {
   position: relative;
   flex: 1;
@@ -287,13 +345,16 @@ body {
   background: var(--surface2);
   color: var(--text);
   border: 1px solid var(--border);
-  padding: 5px 8px;
-  border-radius: 4px;
+  padding: 7px 12px;
+  border-radius: var(--radius-sm);
   font-size: 12px;
+  font-family: 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif;
+  transition: var(--transition);
 }
 
 .level-search input:focus {
   border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
   outline: none;
 }
 
@@ -303,19 +364,22 @@ body {
   left: 0;
   right: 0;
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 0 0 4px 4px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
   max-height: 200px;
   overflow-y: auto;
   z-index: 100;
   display: none;
+  box-shadow: var(--shadow-md);
 }
 
 .level-search .search-results .result-item {
-  padding: 6px 10px;
+  padding: 8px 12px;
   font-size: 12px;
   cursor: pointer;
   border-bottom: 1px solid var(--border);
+  transition: var(--transition);
+  color: var(--text);
 }
 
 .level-search .search-results .result-item:hover {
@@ -323,28 +387,37 @@ body {
   color: #000;
 }
 
-/* Full path display */
+/* ===== FULL PATH DISPLAY ===== */
 .full-path-display {
   background: var(--surface2);
   border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 10px 12px;
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
   font-size: 13px;
-  min-height: 36px;
+  min-height: 44px;
 }
 
 .full-path-display .label {
   font-size: 11px;
   color: var(--text-dim);
-  margin-bottom: 4px;
+  margin-bottom: 6px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .full-path-display .path {
   color: var(--accent);
-  font-weight: 500;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  word-break: break-word;
+  padding: 2px 0;
 }
 
-/* Action buttons */
+/* ===== ACTION BUTTONS ===== */
 .action-buttons {
   display: flex;
   gap: 8px;
@@ -354,51 +427,66 @@ body {
 .action-buttons button {
   flex: 1;
   min-width: 80px;
-  padding: 8px 12px;
-  border: 2px solid transparent;
-  border-radius: 6px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
   font-size: 13px;
   font-weight: 600;
+  font-family: 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--transition);
   background: var(--surface2);
   color: var(--text);
+  position: relative;
+  overflow: hidden;
 }
 
-.action-buttons button:hover { border-color: var(--accent); }
+.action-buttons button:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
 
 .action-buttons button.active-accept {
-  background: var(--green);
-  color: #000;
-  border-color: var(--green);
+  background: linear-gradient(135deg, #34d399, #059669);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 0 16px rgba(52,211,153,0.25);
 }
 
 .action-buttons button.active-modify {
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--accent), #d4941c);
   color: #000;
-  border-color: var(--accent);
+  border-color: transparent;
+  box-shadow: 0 0 16px var(--accent-glow);
 }
 
 .action-buttons button.active-override {
-  background: var(--red);
+  background: linear-gradient(135deg, #fb7185, #e11d48);
   color: #fff;
-  border-color: var(--red);
+  border-color: transparent;
+  box-shadow: 0 0 16px rgba(251,113,133,0.25);
 }
 
 .action-buttons button.btn-uncertain {
-  background: var(--orange);
-  color: #000;
+  background: var(--surface2);
+  color: var(--orange);
+  border-color: rgba(251,146,60,0.3);
+}
+
+.action-buttons button.btn-uncertain:hover {
   border-color: var(--orange);
+  background: rgba(251,146,60,0.08);
 }
 
 .action-buttons button.active-uncertain {
-  background: var(--yellow);
+  background: linear-gradient(135deg, #fbbf24, #d97706);
   color: #000;
-  border-color: var(--yellow);
-  box-shadow: 0 0 8px rgba(251,191,36,0.4);
+  border-color: transparent;
+  box-shadow: 0 0 16px rgba(251,191,36,0.3);
 }
 
-/* Note input */
+/* ===== NOTE INPUT ===== */
 .note-section {
   display: flex;
   align-items: center;
@@ -409,16 +497,19 @@ body {
   font-size: 12px;
   color: var(--text-dim);
   flex-shrink: 0;
+  font-weight: 600;
 }
 
 .note-section input, .note-section textarea {
   flex: 1;
-  background: var(--surface2);
+  background: rgba(255,255,255,0.04);
   color: var(--text);
-  border: 1px solid var(--border);
-  padding: 6px 10px;
-  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
   font-size: 13px;
+  font-family: 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif;
+  transition: var(--transition);
 }
 
 .note-section textarea {
@@ -428,10 +519,11 @@ body {
 
 .note-section input:focus, .note-section textarea:focus {
   border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
   outline: none;
 }
 
-/* Navigation buttons */
+/* ===== NAVIGATION BUTTONS ===== */
 .nav-buttons {
   display: flex;
   gap: 8px;
@@ -440,65 +532,87 @@ body {
 }
 
 .nav-buttons button {
-  padding: 8px 16px;
+  padding: 10px 20px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-size: 13px;
   font-weight: 600;
+  font-family: 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif;
   cursor: pointer;
   background: var(--surface2);
   color: var(--text);
-  transition: all 0.15s;
+  transition: var(--transition);
 }
 
-.nav-buttons button:hover { border-color: var(--accent); color: var(--accent); }
+.nav-buttons button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
+}
 
 .nav-buttons button.btn-primary {
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--accent), #d4941c);
   color: #000;
-  border-color: var(--accent);
+  border-color: transparent;
+  font-weight: 700;
+  box-shadow: 0 2px 12px var(--accent-glow);
 }
 
 .nav-buttons button.btn-primary:hover {
-  background: var(--accent-hover);
+  box-shadow: 0 4px 20px var(--accent-glow);
+  transform: translateY(-1px);
+  color: #000;
 }
 
 .nav-buttons button.btn-export {
-  background: var(--green);
-  color: #000;
-  border-color: var(--green);
+  background: linear-gradient(135deg, #34d399, #059669);
+  color: #fff;
+  border-color: transparent;
+}
+
+.nav-buttons button.btn-export:hover {
+  box-shadow: 0 4px 16px rgba(52,211,153,0.25);
+  transform: translateY(-1px);
+  color: #fff;
 }
 
 .nav-buttons button:disabled {
-  opacity: 0.4;
+  opacity: 0.35;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 /* ===== BOTTOM BAR ===== */
 .bottom-bar {
-  background: var(--surface);
+  background: rgba(20, 19, 26, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-top: 1px solid var(--border);
-  padding: 8px 20px;
+  padding: 10px 24px;
   display: flex;
   align-items: center;
   gap: 16px;
 }
 
+/* ===== PROGRESS BAR ===== */
 .progress-bar-track {
   flex: 1;
-  height: 8px;
-  background: var(--surface2);
-  border-radius: 4px;
+  height: 6px;
+  background: var(--surface3);
+  border-radius: 3px;
   overflow: hidden;
 }
 
 .progress-bar-fill {
   height: 100%;
-  background: var(--accent);
-  border-radius: 4px;
-  transition: width 0.3s;
+  background: linear-gradient(90deg, var(--accent), var(--green));
+  border-radius: 3px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 8px var(--accent-glow);
 }
 
+/* ===== STATS ===== */
 .stats {
   font-size: 12px;
   color: var(--text-dim);
@@ -506,8 +620,8 @@ body {
 }
 
 .stats span { margin: 0 4px; }
-.stats .labeled { color: var(--green); }
-.stats .uncertain { color: var(--orange); }
+.stats .labeled { color: var(--green); font-weight: 600; }
+.stats .uncertain { color: var(--orange); font-weight: 600; }
 .stats .remaining { color: var(--text-dim); }
 
 /* ===== UPLOAD FALLBACK ===== */
@@ -520,13 +634,15 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 20px;
+  gap: 24px;
   padding: 40px;
 }
 
 .upload-fallback h2 {
   color: var(--accent);
-  font-size: 22px;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .upload-fallback p {
@@ -534,6 +650,7 @@ body {
   font-size: 14px;
   text-align: center;
   max-width: 500px;
+  line-height: 1.6;
 }
 
 .upload-fallback .upload-group {
@@ -547,8 +664,13 @@ body {
 .upload-fallback .upload-item {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 16px;
+  border-radius: var(--radius-md);
+  padding: 20px;
+  transition: var(--transition);
+}
+
+.upload-fallback .upload-item:hover {
+  border-color: var(--border-accent);
 }
 
 .upload-fallback .upload-item label {
@@ -557,6 +679,12 @@ body {
   font-weight: 600;
   color: var(--text);
   margin-bottom: 8px;
+}
+
+.upload-fallback .upload-item input[type="file"] {
+  font-size: 13px;
+  color: var(--text-dim);
+  font-family: 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif;
 }
 
 .upload-fallback .upload-item .status {
@@ -568,27 +696,39 @@ body {
 .upload-fallback .upload-item .status.missing { color: var(--orange); }
 
 .upload-fallback button.start-btn {
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--accent), #d4941c);
   color: #000;
   border: none;
-  padding: 12px 32px;
-  border-radius: 6px;
+  padding: 14px 36px;
+  border-radius: var(--radius-sm);
   font-size: 15px;
   font-weight: 700;
+  font-family: 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif;
   cursor: pointer;
+  box-shadow: 0 2px 16px var(--accent-glow);
+  transition: var(--transition);
   margin-top: 10px;
 }
 
-.upload-fallback button.start-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
+.upload-fallback button.start-btn:hover {
+  box-shadow: 0 4px 24px var(--accent-glow);
+  transform: translateY(-1px);
 }
 
-/* Uncertain modal */
+.upload-fallback button.start-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ===== UNCERTAIN MODAL ===== */
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   z-index: 500;
   display: none;
   align-items: center;
@@ -599,50 +739,65 @@ body {
 
 .modal {
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 24px;
-  width: 400px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  width: 420px;
   max-width: 90%;
+  box-shadow: var(--shadow-lg);
+  animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .modal h3 {
   color: var(--orange);
   margin-bottom: 12px;
   font-size: 16px;
+  font-weight: 700;
+}
+
+.modal p {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+  line-height: 1.5;
 }
 
 .modal textarea {
   width: 100%;
-  background: var(--surface2);
+  background: rgba(255,255,255,0.04);
   color: var(--text);
-  border: 1px solid var(--border);
-  padding: 10px;
-  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 12px;
+  border-radius: var(--radius-sm);
   font-size: 13px;
+  font-family: 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif;
   min-height: 80px;
   resize: vertical;
+  transition: var(--transition);
 }
 
 .modal textarea:focus {
   border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
   outline: none;
 }
 
 .modal .modal-actions {
   display: flex;
   gap: 8px;
-  margin-top: 12px;
+  margin-top: 16px;
   justify-content: flex-end;
 }
 
 .modal .modal-actions button {
-  padding: 8px 20px;
+  padding: 9px 20px;
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-size: 13px;
   font-weight: 600;
+  font-family: 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif;
+  transition: var(--transition);
 }
 
 .modal .modal-actions .btn-cancel {
@@ -650,65 +805,263 @@ body {
   color: var(--text);
 }
 
+.modal .modal-actions .btn-cancel:hover {
+  border-color: rgba(255,255,255,0.15);
+}
+
 .modal .modal-actions .btn-confirm {
-  background: var(--orange);
+  background: linear-gradient(135deg, var(--orange), #ea580c);
   color: #000;
-  border-color: var(--orange);
+  border-color: transparent;
+}
+
+.modal .modal-actions .btn-confirm:hover {
+  box-shadow: 0 2px 12px rgba(251,146,60,0.3);
+  transform: translateY(-1px);
 }
 
 .modal .modal-actions .btn-confirm:disabled {
-  opacity: 0.4;
+  opacity: 0.3;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
-/* Keyboard hint */
+/* ===== KEYBOARD HINTS ===== */
 .keyboard-hints {
   font-size: 11px;
   color: var(--text-dim);
   display: flex;
-  gap: 12px;
+  gap: 14px;
   flex-wrap: wrap;
+  padding: 8px 0;
 }
 
 .keyboard-hints kbd {
-  background: var(--surface2);
+  background: var(--surface3);
   border: 1px solid var(--border);
-  border-radius: 3px;
-  padding: 1px 5px;
-  font-family: monospace;
-  font-size: 11px;
+  border-radius: 4px;
+  padding: 2px 7px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-dim);
 }
 
-/* Active dropdown indicator */
+/* ===== ACTIVE DROPDOWN INDICATOR ===== */
 .level-row.active-level .level-label {
   color: var(--yellow);
+  text-shadow: 0 0 8px rgba(253,230,138,0.3);
 }
 
-/* Toast notification */
+/* ===== TOAST NOTIFICATION ===== */
 .toast {
   position: fixed;
-  top: 20px;
-  right: 20px;
-  background: var(--surface);
-  border: 1px solid var(--accent);
+  top: 24px;
+  right: 24px;
+  background: rgba(20, 19, 26, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-accent);
   color: var(--text);
-  padding: 12px 20px;
-  border-radius: 6px;
+  padding: 14px 24px;
+  border-radius: var(--radius-md);
   font-size: 13px;
+  font-weight: 500;
   z-index: 600;
   opacity: 0;
-  transform: translateY(-10px);
-  transition: all 0.3s;
+  transform: translateX(20px);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   pointer-events: none;
+  box-shadow: var(--shadow-md);
 }
 
 .toast.show {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateX(0);
+}
+
+/* ===== LOGIN OVERLAY ===== */
+.login-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #0c0b10;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Animated background mesh */
+.login-overlay::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(232, 168, 72, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(168, 85, 247, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(52, 211, 153, 0.05) 0%, transparent 50%);
+  animation: meshRotate 20s linear infinite;
+}
+
+@keyframes meshRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ===== LOGIN MODAL ===== */
+.login-modal {
+  background: rgba(20, 19, 26, 0.8);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-lg);
+  padding: 48px 44px;
+  width: 440px;
+  max-width: 90%;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  z-index: 1;
+  animation: modalIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalIn {
+  0% { opacity: 0; transform: translateY(20px) scale(0.96); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.login-modal h2 {
+  color: var(--accent);
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 28px;
+  letter-spacing: -0.02em;
+}
+
+.login-modal .login-field {
+  text-align: left;
+  margin-bottom: 18px;
+}
+
+.login-modal .login-field label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.login-modal .login-field input,
+.login-modal .login-field select {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-family: 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif;
+  transition: var(--transition);
+  outline: none;
+}
+
+.login-modal .login-field input:focus,
+.login-modal .login-field select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+.login-modal .login-note {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 20px;
+  line-height: 1.6;
+  text-align: left;
+}
+
+.login-modal .login-start-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--accent), #d4941c);
+  color: #000;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-weight: 700;
+  font-family: 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 2px 16px var(--accent-glow);
+  margin-top: 8px;
+}
+
+.login-modal .login-start-btn:hover {
+  box-shadow: 0 4px 24px var(--accent-glow);
+  transform: translateY(-1px);
+}
+
+.login-modal .login-start-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ===== SWITCH USER BUTTON ===== */
+.switch-user-btn {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.08);
+  color: var(--text-dim);
+  font-size: 11px;
+  font-family: 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif;
+  padding: 4px 10px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.switch-user-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ===== ANNOTATOR DISPLAY ===== */
+#annotatorDisplay {
+  font-size: 13px;
+  color: var(--accent);
+  font-weight: 600;
+  font-family: 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif;
 }
 </style>
 </head>
 <body>
+
+<!-- Login Modal -->
+<div class="login-overlay" id="loginOverlay" style="display:none;">
+  <div class="login-modal">
+    <h2>Welcome to Image Annotation Tool</h2>
+    <div class="login-field">
+      <label for="loginName">Your Name</label>
+      <input type="text" id="loginName" placeholder="Enter your name..." required>
+    </div>
+    <div class="login-field">
+      <label for="loginGroup">Annotator Group</label>
+      <select id="loginGroup">
+        <option value="A">A</option>
+        <option value="B">B</option>
+        <option value="C">C</option>
+        <option value="D">D</option>
+        <option value="E">E</option>
+      </select>
+    </div>
+    <div class="login-note">Your group determines which images are assigned to you.</div>
+    <button class="login-start-btn" id="loginStartBtn" disabled>Start</button>
+  </div>
+</div>
 
 <!-- Upload Fallback -->
 <div class="upload-fallback" id="uploadFallback" style="display:none;">
@@ -745,14 +1098,8 @@ body {
   <span class="title">Image Annotation Tool v1.0</span>
   <div class="controls">
     <label>Annotator:</label>
-    <select id="annotatorSelect">
-      <option value="">-- Select --</option>
-      <option value="A">A</option>
-      <option value="B">B</option>
-      <option value="C">C</option>
-      <option value="D">D</option>
-      <option value="E">E</option>
-    </select>
+    <span id="annotatorDisplay">--</span>
+    <button class="switch-user-btn" id="switchUserBtn">Switch User</button>
     <label>Batch:</label>
     <select id="batchSelect">
       <option value="780">780</option>
@@ -916,6 +1263,7 @@ body {
   let currentIndex = 0;
   let annotations = {};
   let annotatorId = '';
+  let annotatorName = '';
   let batchId = '780';
   let startTime = 0;
   let activeLevel = null;
@@ -1286,7 +1634,7 @@ body {
       aiDisplay.textContent = (task.ai_path_en || '') + ' (' + (task.ai_path || '') + ')';
       aiDisplay.className = 'path valid';
     } else if (task.ai_path) {
-      aiDisplay.textContent = task.ai_path_en + ' (invalid in V2)';
+      aiDisplay.textContent = (task.ai_path_en || task.ai_path) + ' (invalid in V2)';
       aiDisplay.className = 'path invalid';
     } else {
       aiDisplay.textContent = 'No AI prediction available';
@@ -1352,7 +1700,7 @@ body {
       }
       annotations[task.task_id] = {
         task_id: task.task_id,
-        annotator_id: annotatorId,
+        annotator_id: annotatorName + '(' + annotatorId + ')',
         label_L1: levels.L1 || '',
         label_L2: levels.L2 || '',
         label_L3: levels.L3 || '',
@@ -1374,7 +1722,7 @@ body {
       const aiAction = determineAiAction(path, task.ai_path || '');
       annotations[task.task_id] = {
         task_id: task.task_id,
-        annotator_id: annotatorId,
+        annotator_id: annotatorName + '(' + annotatorId + ')',
         label_L1: levels.L1 || '',
         label_L2: levels.L2 || '',
         label_L3: levels.L3 || '',
@@ -1455,8 +1803,8 @@ body {
 
   // ========== EXPORT ==========
   function exportCSV() {
-    if (!annotatorId) {
-      showToast('Please select an annotator first');
+    if (!annotatorId || !annotatorName) {
+      showToast('Please log in first');
       return;
     }
 
@@ -1477,7 +1825,7 @@ body {
       String(now.getMinutes()).padStart(2, '0') +
       String(now.getSeconds()).padStart(2, '0');
 
-    const filename = 'annotation_' + annotatorId + '_batch' + batchId + '_' + ts + '.csv';
+    const filename = 'annotation_' + annotatorName + '_' + annotatorId + '_batch' + batchId + '_' + ts + '.csv';
 
     const header = 'task_id,annotator_id,label_L1,label_L2,label_L3,label_L4,label_L5,label_path,label_path_en,ai_action,is_uncertain,uncertain_reason,timestamp,duration_ms';
     const rows = taskAnnotations.map(a => {
@@ -1532,6 +1880,94 @@ body {
     setTimeout(() => { toast.classList.remove('show'); }, 3000);
   }
 
+  // ========== LOGIN MODAL ==========
+  function showLoginModal() {
+    document.getElementById('loginOverlay').style.display = 'flex';
+    document.getElementById('loginName').value = '';
+    document.getElementById('loginGroup').value = 'A';
+    document.getElementById('loginStartBtn').disabled = true;
+    document.getElementById('loginName').focus();
+  }
+
+  function hideLoginModal() {
+    document.getElementById('loginOverlay').style.display = 'none';
+  }
+
+  function setupLoginListeners() {
+    const nameInput = document.getElementById('loginName');
+    const startBtn = document.getElementById('loginStartBtn');
+
+    nameInput.addEventListener('input', function() {
+      startBtn.disabled = !this.value.trim();
+    });
+
+    nameInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && this.value.trim()) {
+        e.preventDefault();
+        startBtn.click();
+      }
+    });
+
+    startBtn.addEventListener('click', function() {
+      const name = document.getElementById('loginName').value.trim();
+      const group = document.getElementById('loginGroup').value;
+      if (!name) return;
+
+      annotatorName = name;
+      annotatorId = group;
+
+      // Save identity to localStorage
+      try {
+        localStorage.setItem('annotator_identity', JSON.stringify({ name: name, group: group }));
+      } catch (e) {
+        console.warn('Failed to save identity:', e);
+      }
+
+      hideLoginModal();
+      updateAnnotatorDisplay();
+      onIdentityReady();
+    });
+
+    document.getElementById('switchUserBtn').addEventListener('click', function() {
+      try {
+        localStorage.removeItem('annotator_identity');
+      } catch (e) {}
+      annotatorId = '';
+      annotatorName = '';
+      annotations = {};
+      currentTasks = [];
+      currentIndex = 0;
+      document.getElementById('annotatorDisplay').textContent = '--';
+      showLoginModal();
+    });
+  }
+
+  function updateAnnotatorDisplay() {
+    document.getElementById('annotatorDisplay').textContent = annotatorName + ' (' + annotatorId + ')';
+  }
+
+  function loadSavedIdentity() {
+    try {
+      const saved = localStorage.getItem('annotator_identity');
+      if (saved) {
+        const identity = JSON.parse(saved);
+        if (identity.name && identity.group) {
+          annotatorName = identity.name;
+          annotatorId = identity.group;
+          return true;
+        }
+      }
+    } catch (e) {}
+    return false;
+  }
+
+  function onIdentityReady() {
+    if (dataReady && annotatorId) {
+      loadFromLocalStorage();
+      filterAndLoadTasks();
+    }
+  }
+
   // ========== INIT ==========
   function init() {
     const hasTaxonomy = typeof window.TREE_A !== 'undefined' && window.TREE_A;
@@ -1553,17 +1989,58 @@ body {
       manifestData = parseCSV(window.ASSIGNMENT_MANIFEST);
     }
 
-    if (!hasTaxonomy || (!hasTasks780 && !hasTasks1000)) {
-      showUploadFallback(hasTaxonomy, hasTasks780, hasTasks1000, hasManifest);
-    } else {
-      dataReady = true;
-      populateSelect(document.getElementById('selectL1'), l1Nodes, '-- Select L1 --');
-    }
-
+    setupLoginListeners();
     setupEventListeners();
     setupSearch(3);
     setupSearch(4);
     setupSearch(5);
+
+    // Check for saved identity
+    const hasIdentity = loadSavedIdentity();
+
+    if (!hasTaxonomy || (!hasTasks780 && !hasTasks1000)) {
+      // Need upload fallback - but check identity first
+      if (!hasIdentity) {
+        // Show login modal first; on login, check data and show upload fallback if needed
+        showLoginModal();
+        // Override the login start to chain into upload fallback check
+        const origStartClick = document.getElementById('loginStartBtn').onclick;
+        // The listener is already set up - after login, onIdentityReady checks dataReady
+        // We just need to also show upload fallback after login if data isn't ready
+        const loginStartBtn = document.getElementById('loginStartBtn');
+        // Remove existing listener and replace
+        const newLoginStartBtn = loginStartBtn.cloneNode(true);
+        loginStartBtn.parentNode.replaceChild(newLoginStartBtn, loginStartBtn);
+        document.getElementById('loginName').addEventListener('input', function() {
+          newLoginStartBtn.disabled = !this.value.trim();
+        });
+        newLoginStartBtn.addEventListener('click', function() {
+          const name = document.getElementById('loginName').value.trim();
+          const group = document.getElementById('loginGroup').value;
+          if (!name) return;
+          annotatorName = name;
+          annotatorId = group;
+          try {
+            localStorage.setItem('annotator_identity', JSON.stringify({ name: name, group: group }));
+          } catch (e) {}
+          hideLoginModal();
+          updateAnnotatorDisplay();
+          showUploadFallback(hasTaxonomy, hasTasks780, hasTasks1000, hasManifest);
+        });
+      } else {
+        updateAnnotatorDisplay();
+        showUploadFallback(hasTaxonomy, hasTasks780, hasTasks1000, hasManifest);
+      }
+    } else {
+      dataReady = true;
+      populateSelect(document.getElementById('selectL1'), l1Nodes, '-- Select L1 --');
+      if (!hasIdentity) {
+        showLoginModal();
+      } else {
+        updateAnnotatorDisplay();
+        onIdentityReady();
+      }
+    }
   }
 
   function showUploadFallback(hasTax, has780, has1000, hasManifest) {
@@ -1654,6 +2131,7 @@ body {
       fallback.style.display = 'none';
       dataReady = true;
       populateSelect(document.getElementById('selectL1'), l1Nodes, '-- Select L1 --');
+      onIdentityReady();
     });
   }
 
@@ -1664,15 +2142,6 @@ body {
 
   // ========== EVENT LISTENERS ==========
   function setupEventListeners() {
-    // Annotator select
-    document.getElementById('annotatorSelect').addEventListener('change', function() {
-      annotatorId = this.value;
-      if (annotatorId) {
-        loadFromLocalStorage();
-        filterAndLoadTasks();
-      }
-    });
-
     // Batch select
     document.getElementById('batchSelect').addEventListener('change', function() {
       batchId = this.value;
@@ -1782,8 +2251,8 @@ body {
   }
 
   function doConfirm() {
-    if (!annotatorId) {
-      showToast('Please select an annotator');
+    if (!annotatorId || !annotatorName) {
+      showToast('Please log in first');
       return;
     }
     if (!currentTasks.length) return;
