@@ -49,6 +49,7 @@ body {
   font-family: 'Plus Jakarta Sans', 'Noto Sans SC', -apple-system, sans-serif;
   background: var(--bg);
   color: var(--text);
+  color-scheme: dark;
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -232,6 +233,7 @@ body {
 .level-select-wrapper { flex: 1; position: relative; }
 .level-select-wrapper select {
   width: 100%; background: var(--surface2); color: var(--text);
+  color-scheme: dark;
   border: 1px solid var(--border); padding: 8px 12px;
   border-radius: var(--radius-sm); font-size: 13px;
   font-family: 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif;
@@ -246,6 +248,11 @@ body {
 .level-select-wrapper select.user-selected {
   border-color: var(--accent);
   background: var(--accent-dim);
+}
+
+.level-select-wrapper select option {
+  background: var(--surface2);
+  color: var(--text);
 }
 
 .level-search { position: relative; flex: 1; display: none; }
@@ -809,6 +816,7 @@ body {
     opt0.value = '';
     opt0.textContent = placeholder || '-- Select --';
     selectEl.appendChild(opt0);
+    selectEl.classList.remove('user-selected');
     if (!nodes) return;
     for (const node of nodes) {
       const opt = document.createElement('option');
@@ -836,7 +844,11 @@ body {
     const sel = document.getElementById('selectL' + level);
     const path = sel.value;
     disableSelectsFrom(level + 1);
-    if (!path) { updateFullPath(); return; }
+    if (!path) {
+      sel.classList.remove('user-selected');
+      updateFullPath();
+      return;
+    }
     sel.classList.add('user-selected');
     const node = nodeMap[path];
     if (node && node.children && node.children.length > 0) {
