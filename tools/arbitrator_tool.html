@@ -77,6 +77,7 @@ body {
 }
 .top-bar select {
   background: var(--surface2); color: var(--text); border: 1px solid var(--border);
+  color-scheme: dark;
   padding: 5px 10px; border-radius: var(--radius-sm); font-size: 13px;
   font-family: 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif;
   transition: var(--transition); cursor: pointer;
@@ -84,6 +85,11 @@ body {
 .top-bar select:focus {
   border-color: var(--accent); outline: none;
   box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+.top-bar select option {
+  background: var(--surface2);
+  color: var(--text);
 }
 .top-bar .progress-text { font-size: 13px; color: var(--text-dim); }
 .top-bar .progress-text span { color: var(--accent); font-weight: 600; }
