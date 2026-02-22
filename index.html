@@ -32,8 +32,8 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 /* Hide scrollbar but keep scrolling */
-html { scrollbar-width: none; }
-html::-webkit-scrollbar { display: none; }
+html, body { scrollbar-width: none; -ms-overflow-style: none; }
+html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; }
 
 body {
   font-family: 'Plus Jakarta Sans', 'Noto Sans SC', -apple-system, sans-serif;
@@ -41,6 +41,7 @@ body {
   color: var(--text);
   line-height: 1.6;
   min-height: 100vh;
+  overflow-y: scroll;
 }
 
 /* ═══════════════ Mosaic Background ═══════════════ */
