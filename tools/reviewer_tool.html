@@ -383,8 +383,9 @@ body {
 .upload-fallback {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg);
   z-index: 1000; display: flex; flex-direction: column; align-items: center;
-  justify-content: center; gap: 20px; padding: 40px;
+  justify-content: center; gap: 20px; padding: 40px; overflow: hidden;
 }
+.upload-fallback > *:not(.login-mosaic) { position: relative; z-index: 1; }
 .upload-fallback h2 {
   color: var(--accent); font-size: 24px; font-weight: 700;
   letter-spacing: -0.02em;
@@ -622,6 +623,12 @@ body {
 
 <!-- Upload Fallback -->
 <div class="upload-fallback" id="uploadFallback" style="display:none;">
+  <div class="login-mosaic">
+    <img src="../assets/mosaic/m03.jpg" alt=""><img src="../assets/mosaic/m04.jpg" alt=""><img src="../assets/mosaic/m05.jpg" alt=""><img src="../assets/mosaic/m06.jpg" alt=""><img src="../assets/mosaic/m10.jpg" alt=""><img src="../assets/mosaic/m11.jpg" alt=""><img src="../assets/mosaic/m13.jpg" alt=""><img src="../assets/mosaic/m14.jpg" alt="">
+    <img src="../assets/mosaic/m16.jpg" alt=""><img src="../assets/mosaic/m17.jpg" alt=""><img src="../assets/mosaic/m18.jpg" alt=""><img src="../assets/mosaic/m20.jpg" alt=""><img src="../assets/mosaic/m21.jpg" alt=""><img src="../assets/mosaic/m22.jpg" alt=""><img src="../assets/mosaic/m27.jpg" alt=""><img src="../assets/mosaic/m29.jpg" alt="">
+    <img src="../assets/mosaic/m31.jpg" alt=""><img src="../assets/mosaic/m33.jpg" alt=""><img src="../assets/mosaic/m35.jpg" alt=""><img src="../assets/mosaic/m36.jpg" alt=""><img src="../assets/mosaic/m40.jpg" alt=""><img src="../assets/mosaic/m41.jpg" alt=""><img src="../assets/mosaic/m42.jpg" alt=""><img src="../assets/mosaic/m43.jpg" alt="">
+    <img src="../assets/mosaic/m44.jpg" alt=""><img src="../assets/mosaic/m45.jpg" alt=""><img src="../assets/mosaic/m46.jpg" alt=""><img src="../assets/mosaic/m47.jpg" alt=""><img src="../assets/mosaic/m48.jpg" alt=""><img src="../assets/mosaic/m50.jpg" alt=""><img src="../assets/mosaic/m51.jpg" alt=""><img src="../assets/mosaic/m56.jpg" alt="">
+  </div>
   <h2>Review Tool v1.0</h2>
   <p>Upload the required files to begin reviewing.</p>
   <div class="upload-group">
