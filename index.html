@@ -39,8 +39,40 @@ body {
   min-height: 100vh;
 }
 
+/* ═══════════════ Mosaic Background ═══════════════ */
+#mosaic-bg {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  z-index: 0;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 2px;
+  opacity: 0.045;
+  pointer-events: none;
+}
+
+#mosaic-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+#mosaic-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at center, transparent 30%, var(--bg) 80%),
+    linear-gradient(to bottom, var(--bg) 0%, transparent 8%, transparent 92%, var(--bg) 100%);
+}
+
 /* ═══════════════ Layout ═══════════════ */
 .page-wrapper {
+  position: relative;
+  z-index: 1;
   max-width: 860px;
   margin: 0 auto;
   padding: 32px 20px 60px;
@@ -606,6 +638,8 @@ kbd {
 </style>
 </head>
 <body>
+<div id="mosaic-bg"></div>
+<div id="mosaic-overlay"></div>
 <div class="page-wrapper">
 
   <!-- ═══════════════ HEADER ═══════════════ -->
@@ -963,6 +997,88 @@ kbd {
 </div>
 
 <script>
+// ═══════════════ Mosaic Background ═══════════════
+(function() {
+  var pool = [
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/29/9d22d715b57036a45261ac7e654a9c3f.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/452ee93909c630285a50cff4e1f2b1f1.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202602/01/5ba37855ff7226a79e53fd69072dfc60.jpg',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/078b29ef7b94b1bd151a5b6a72420fbb.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202602/01/f374d76bffda997732c5b1b8b6d6c8a8.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202602/02/39cb24078f8c25345fb9df0b42703451.jpg',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/29/67e01184844e13b2df1144e185cfbaed.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202602/02/f195ba2aba39a8ee1b5ff42d09350b68.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/3406cd9f6ed246df7770d4aa54c8e233.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/9b46d168460f4014db6d30421667913a.jpg',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202602/01/0a5feb5ce3fb6a6437deb1d6fb81c9c9.jpg',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/b1e4bb93ec3d67195200fa8861c61da7.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/8eeba544214953322ef12bae68168e20.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/845efbcfa1f64dbea043583dda9f528d.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/f15e5a0c88e2fe5e90dd50c1b77a9173.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/d7a053514b07f95308fd3a53e618b006.jpg',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202602/01/3e4d0ae30a4a1a482fa9067c242a366c.jpg',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202602/01/8ce2e98170eba610623583770b4f2180.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/52981953bc8c44519deaf74667dd9245.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/8fe85418a5c420ab2c0d3990fab7a046.jpg',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/d4137146af9e0b83f5f4c497921e0b37.jpg',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202602/02/48171d40fe9be87979e15918289e86f7.jpg',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/54b949a4fe83f5c07d4f72ef25942d95.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202602/02/982ac4d73769223e905bbaf44b9a9e73.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/957da41a2f2f871e949fdbcfdf45a01a.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/e526c9539ad3acc32977cc382e7e3d73.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/fe63b93dc65a9bcfb47d5546f0cc8b45.jpg',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202602/02/54aefdb01926b767d2c19eb15d7a0458.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202602/01/1217920037ddd183a677a42d7eb1bab3.jpg',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202602/02/a141fdc501ebcda004b905edcee063f0.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/3e5513b88778d8a688e5d53842028a04.jpg',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202602/02/4152dad29443679d1e1adce0b8780d0a.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/54934fb164d8671814db98cb83396eba.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202602/02/625523578b96d06011362ee17a88e8e3.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/41921ae93213efc9f50149cdebe3e166.jpg',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202602/01/cdab691038ecc214b2951bf1a70bf955.jpg',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202602/02/8ae488cbe1f73305fa0aa0634ba4d0bb.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/4a0d6631bbcc302c34277fb98f94c609.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/514283bd0e3ca1162c36d80144c3bafc.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202602/02/a7932191c82f27990b2116b1ecbcceaf.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/6b66404ed13e59a95d30b6ca476d50ea.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/d745309c0ca592b18a3259d6ebbe9f99.jpg',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/29/b84f428e967245454eb64960a05f9267.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/59808c5db1f33fdcf3a26ce8c1a7b995.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/808da4c0c041b461e338021db3913731.jpg',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202602/02/3d6ab7eb4a7dbe6ced7e670c9e1227b3.jpg',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202602/02/770a7d471e4d5ecb08057c761fa88935.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/7e8d9243ddbc67a40bf21598371d474a.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/d63a3347aebdd00fbe4457d0c61ecf12.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202602/02/c03904e23cc86396f77f7707083411aa.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202602/01/f2246c021c9761c85eadffca7fc6f5ab.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/87eb15f1adcecd5987b1086c485ad670.jpg',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/ca3be45c1e48231d3bfea121c0bf339b.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/49f5c16774e69166f5d4e00128cb3b93.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202602/02/6ec806c86277c5fb846415c1e32cb130.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202602/01/e05ae1066704d0eef9a4c120032e09b4.jpg',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/b286192586ae07f8a43469f7122fc4e7.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/cdf658f78b7bdd4ecb0546e66b267b1b.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/29/ebc582698a0a2e4b61b081d576e5f846.png',
+    'https://theme-magazine-gl-01.heytapimg.com/magzineimgf-nearme-com-cn/openplat/lockscreen/self-image/wallpaper/202601/30/fccac599c224962baecdda816f79b931.png'
+  ];
+  // Shuffle and pick 24
+  for (var i = pool.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = pool[i]; pool[i] = pool[j]; pool[j] = t;
+  }
+  var picks = pool.slice(0, 24);
+  var container = document.getElementById('mosaic-bg');
+  picks.forEach(function(url) {
+    var img = document.createElement('img');
+    img.src = url;
+    img.alt = '';
+    img.loading = 'lazy';
+    img.onerror = function() { this.style.display = 'none'; };
+    container.appendChild(img);
+  });
+})();
+
+// ═══════════════ Tab Switching ═══════════════
 function switchTab(tab) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
