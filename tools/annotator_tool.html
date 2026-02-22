@@ -1,0 +1,1854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Annotation Tool v1.0</title>
+<script src="../taxonomy/visual_elements_global.js"></script>
+<script src="../tasks/annotation_tasks_780.js"></script>
+<script src="../tasks/annotation_tasks_1000.js"></script>
+<script src="../tasks/assignment_manifest.js"></script>
+<style>
+:root {
+  --bg: #1a1a2e;
+  --surface: #16213e;
+  --surface2: #1c2a4a;
+  --text: #e0e0e0;
+  --text-dim: #8899aa;
+  --accent: #4fc3f7;
+  --accent-hover: #81d4fa;
+  --green: #22c55e;
+  --red: #ef4444;
+  --orange: #f59e0b;
+  --yellow: #fbbf24;
+  --border: #2a3a5e;
+  --ai-bg: #2a2a3e;
+  --user-bg: #1a3a5e;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ===== TOP BAR ===== */
+.top-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  min-height: 48px;
+}
+
+.top-bar .title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.top-bar .controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.top-bar label {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.top-bar select {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.top-bar .progress-text {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.top-bar .progress-text span {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.taxonomy-link {
+  font-size: 12px;
+  background: var(--surface);
+  padding: 4px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.taxonomy-link a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.taxonomy-link a:hover { text-decoration: underline; }
+
+/* ===== MAIN CONTENT ===== */
+.main-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Left Panel */
+.left-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  border-right: 1px solid var(--border);
+  min-width: 300px;
+  overflow: auto;
+}
+
+.image-container {
+  max-width: 100%;
+  max-height: calc(100vh - 250px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #111;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  position: relative;
+  min-height: 200px;
+  width: 100%;
+}
+
+.image-container img {
+  max-width: 100%;
+  max-height: calc(100vh - 260px);
+  object-fit: contain;
+}
+
+.image-container .placeholder {
+  color: var(--text-dim);
+  font-size: 14px;
+  text-align: center;
+  padding: 40px;
+}
+
+.task-info {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+.task-info .task-id {
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 15px;
+}
+
+/* Right Panel */
+.right-panel {
+  width: 480px;
+  min-width: 400px;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  overflow-y: auto;
+  gap: 14px;
+}
+
+/* AI Suggestion */
+.ai-suggestion {
+  background: var(--ai-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.ai-suggestion .label {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ai-suggestion .path {
+  font-size: 14px;
+  color: #aaa;
+  word-break: break-word;
+}
+
+.ai-suggestion .path.valid { color: var(--text); }
+.ai-suggestion .path.invalid { color: var(--red); font-style: italic; }
+
+.ai-suggestion .ai-badge {
+  display: inline-block;
+  background: #333;
+  color: #aaa;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-top: 4px;
+}
+
+/* Human ref */
+.human-ref {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: var(--text-dim);
+  display: none;
+}
+
+.human-ref .path { color: var(--green); }
+
+/* Level selectors */
+.selector-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.level-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.level-label {
+  width: 28px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.level-select-wrapper {
+  flex: 1;
+  position: relative;
+}
+
+.level-select-wrapper select {
+  width: 100%;
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 7px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  appearance: auto;
+}
+
+.level-select-wrapper select:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.level-select-wrapper select:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.level-select-wrapper select.user-selected {
+  border-color: var(--accent);
+  background: var(--user-bg);
+}
+
+/* Search box for L3+ */
+.level-search {
+  position: relative;
+  flex: 1;
+  display: none;
+}
+
+.level-search input {
+  width: 100%;
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 5px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.level-search input:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.level-search .search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0 0 4px 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 100;
+  display: none;
+}
+
+.level-search .search-results .result-item {
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+}
+
+.level-search .search-results .result-item:hover {
+  background: var(--accent);
+  color: #000;
+}
+
+/* Full path display */
+.full-path-display {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 13px;
+  min-height: 36px;
+}
+
+.full-path-display .label {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+
+.full-path-display .path {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* Action buttons */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.action-buttons button {
+  flex: 1;
+  min-width: 80px;
+  padding: 8px 12px;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: var(--surface2);
+  color: var(--text);
+}
+
+.action-buttons button:hover { border-color: var(--accent); }
+
+.action-buttons button.active-accept {
+  background: var(--green);
+  color: #000;
+  border-color: var(--green);
+}
+
+.action-buttons button.active-modify {
+  background: var(--accent);
+  color: #000;
+  border-color: var(--accent);
+}
+
+.action-buttons button.active-override {
+  background: var(--red);
+  color: #fff;
+  border-color: var(--red);
+}
+
+.action-buttons button.btn-uncertain {
+  background: var(--orange);
+  color: #000;
+  border-color: var(--orange);
+}
+
+.action-buttons button.active-uncertain {
+  background: var(--yellow);
+  color: #000;
+  border-color: var(--yellow);
+  box-shadow: 0 0 8px rgba(251,191,36,0.4);
+}
+
+/* Note input */
+.note-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.note-section label {
+  font-size: 12px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+.note-section input, .note-section textarea {
+  flex: 1;
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.note-section textarea {
+  resize: vertical;
+  min-height: 40px;
+}
+
+.note-section input:focus, .note-section textarea:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+/* Navigation buttons */
+.nav-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.nav-buttons button {
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--surface2);
+  color: var(--text);
+  transition: all 0.15s;
+}
+
+.nav-buttons button:hover { border-color: var(--accent); color: var(--accent); }
+
+.nav-buttons button.btn-primary {
+  background: var(--accent);
+  color: #000;
+  border-color: var(--accent);
+}
+
+.nav-buttons button.btn-primary:hover {
+  background: var(--accent-hover);
+}
+
+.nav-buttons button.btn-export {
+  background: var(--green);
+  color: #000;
+  border-color: var(--green);
+}
+
+.nav-buttons button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ===== BOTTOM BAR ===== */
+.bottom-bar {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 8px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.progress-bar-track {
+  flex: 1;
+  height: 8px;
+  background: var(--surface2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 4px;
+  transition: width 0.3s;
+}
+
+.stats {
+  font-size: 12px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.stats span { margin: 0 4px; }
+.stats .labeled { color: var(--green); }
+.stats .uncertain { color: var(--orange); }
+.stats .remaining { color: var(--text-dim); }
+
+/* ===== UPLOAD FALLBACK ===== */
+.upload-fallback {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--bg);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 40px;
+}
+
+.upload-fallback h2 {
+  color: var(--accent);
+  font-size: 22px;
+}
+
+.upload-fallback p {
+  color: var(--text-dim);
+  font-size: 14px;
+  text-align: center;
+  max-width: 500px;
+}
+
+.upload-fallback .upload-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 500px;
+}
+
+.upload-fallback .upload-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.upload-fallback .upload-item label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.upload-fallback .upload-item .status {
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.upload-fallback .upload-item .status.loaded { color: var(--green); }
+.upload-fallback .upload-item .status.missing { color: var(--orange); }
+
+.upload-fallback button.start-btn {
+  background: var(--accent);
+  color: #000;
+  border: none;
+  padding: 12px 32px;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.upload-fallback button.start-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Uncertain modal */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 500;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-overlay.active { display: flex; }
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px;
+  width: 400px;
+  max-width: 90%;
+}
+
+.modal h3 {
+  color: var(--orange);
+  margin-bottom: 12px;
+  font-size: 16px;
+}
+
+.modal textarea {
+  width: 100%;
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  min-height: 80px;
+  resize: vertical;
+}
+
+.modal textarea:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.modal .modal-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  justify-content: flex-end;
+}
+
+.modal .modal-actions button {
+  padding: 8px 20px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.modal .modal-actions .btn-cancel {
+  background: var(--surface2);
+  color: var(--text);
+}
+
+.modal .modal-actions .btn-confirm {
+  background: var(--orange);
+  color: #000;
+  border-color: var(--orange);
+}
+
+.modal .modal-actions .btn-confirm:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Keyboard hint */
+.keyboard-hints {
+  font-size: 11px;
+  color: var(--text-dim);
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.keyboard-hints kbd {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1px 5px;
+  font-family: monospace;
+  font-size: 11px;
+}
+
+/* Active dropdown indicator */
+.level-row.active-level .level-label {
+  color: var(--yellow);
+}
+
+/* Toast notification */
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  color: var(--text);
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-size: 13px;
+  z-index: 600;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.3s;
+  pointer-events: none;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+</style>
+</head>
+<body>
+
+<!-- Upload Fallback -->
+<div class="upload-fallback" id="uploadFallback" style="display:none;">
+  <h2>Image Annotation Tool v1.0</h2>
+  <p>Data files not auto-loaded. Please upload the required files below to get started.</p>
+  <div class="upload-group">
+    <div class="upload-item">
+      <label>Taxonomy JSON (visual_elements_global.json)</label>
+      <input type="file" accept=".json,.js" id="uploadTaxonomy">
+      <div class="status" id="statusTaxonomy">
+        <span class="missing">Not loaded</span>
+      </div>
+    </div>
+    <div class="upload-item">
+      <label>Tasks CSV (annotation_tasks_780.csv or annotation_tasks_1000.csv)</label>
+      <input type="file" accept=".csv" id="uploadTasks" multiple>
+      <div class="status" id="statusTasks">
+        <span class="missing">Not loaded</span>
+      </div>
+    </div>
+    <div class="upload-item">
+      <label>Assignment Manifest (assignment_manifest.csv) - optional</label>
+      <input type="file" accept=".csv" id="uploadManifest">
+      <div class="status" id="statusManifest">
+        <span class="missing">Not loaded (will show all tasks)</span>
+      </div>
+    </div>
+  </div>
+  <button class="start-btn" id="startBtn" disabled>Start Annotation</button>
+</div>
+
+<!-- Main UI -->
+<div class="top-bar" id="topBar">
+  <span class="title">Image Annotation Tool v1.0</span>
+  <div class="controls">
+    <label>Annotator:</label>
+    <select id="annotatorSelect">
+      <option value="">-- Select --</option>
+      <option value="A">A</option>
+      <option value="B">B</option>
+      <option value="C">C</option>
+      <option value="D">D</option>
+      <option value="E">E</option>
+    </select>
+    <label>Batch:</label>
+    <select id="batchSelect">
+      <option value="780">780</option>
+      <option value="1000">1000</option>
+    </select>
+    <span class="progress-text" id="progressText">
+      <span id="currentIdx">0</span> / <span id="totalCount">0</span>
+    </span>
+  </div>
+</div>
+<div class="taxonomy-link">
+  View Taxonomy Tree: <a href="https://rajeshzheng.github.io/ls-taxonomy-v2_202602/" target="_blank">https://rajeshzheng.github.io/ls-taxonomy-v2_202602/</a>
+</div>
+
+<div class="main-content" id="mainContent">
+  <!-- Left Panel -->
+  <div class="left-panel">
+    <div class="image-container" id="imageContainer">
+      <div class="placeholder" id="imagePlaceholder">Select an annotator and batch to begin</div>
+      <img id="taskImage" style="display:none;" alt="Task image">
+    </div>
+    <div class="task-info" id="taskInfo">
+      <span class="task-id" id="taskIdDisplay">--</span>
+      <span id="taskSourceDisplay"></span>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="right-panel" id="rightPanel">
+    <div class="ai-suggestion" id="aiSuggestion">
+      <div class="label">AI Suggestion</div>
+      <div class="path" id="aiPathDisplay">--</div>
+      <span class="ai-badge" id="aiBadge">AI</span>
+    </div>
+
+    <div class="human-ref" id="humanRef">
+      <span style="color:var(--text-dim)">Human Reference (780): </span>
+      <span class="path" id="humanRefPath">--</span>
+    </div>
+
+    <!-- Level Selectors -->
+    <div class="selector-section" id="selectorSection">
+      <div class="level-row" data-level="1" id="levelRow1">
+        <span class="level-label">L1</span>
+        <div class="level-select-wrapper">
+          <select id="selectL1"><option value="">-- Select L1 --</option></select>
+        </div>
+      </div>
+      <div class="level-row" data-level="2" id="levelRow2">
+        <span class="level-label">L2</span>
+        <div class="level-select-wrapper">
+          <select id="selectL2" disabled><option value="">-- Select L2 --</option></select>
+        </div>
+      </div>
+      <div class="level-row" data-level="3" id="levelRow3">
+        <span class="level-label">L3</span>
+        <div class="level-select-wrapper">
+          <select id="selectL3" disabled><option value="">-- Select L3 --</option></select>
+        </div>
+        <div class="level-search" id="searchL3">
+          <input type="text" placeholder="Search L3..." id="searchInputL3">
+          <div class="search-results" id="searchResultsL3"></div>
+        </div>
+      </div>
+      <div class="level-row" data-level="4" id="levelRow4">
+        <span class="level-label">L4</span>
+        <div class="level-select-wrapper">
+          <select id="selectL4" disabled><option value="">-- Select L4 --</option></select>
+        </div>
+        <div class="level-search" id="searchL4">
+          <input type="text" placeholder="Search L4..." id="searchInputL4">
+          <div class="search-results" id="searchResultsL4"></div>
+        </div>
+      </div>
+      <div class="level-row" data-level="5" id="levelRow5">
+        <span class="level-label">L5</span>
+        <div class="level-select-wrapper">
+          <select id="selectL5" disabled><option value="">-- Select L5 --</option></select>
+        </div>
+        <div class="level-search" id="searchL5">
+          <input type="text" placeholder="Search L5..." id="searchInputL5">
+          <div class="search-results" id="searchResultsL5"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Full path -->
+    <div class="full-path-display">
+      <div class="label">Selected Path</div>
+      <div class="path" id="fullPathDisplay">--</div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons" id="actionButtons">
+      <button id="btnAccept" title="Accept AI suggestion (A)">Accept</button>
+      <button id="btnModify" title="Modify AI suggestion">Modify</button>
+      <button id="btnReselect" title="Completely reselect">Reselect</button>
+      <button id="btnUncertain" class="btn-uncertain" title="Mark as uncertain (U)">Uncertain</button>
+    </div>
+
+    <!-- Note -->
+    <div class="note-section">
+      <label>Note:</label>
+      <input type="text" id="noteInput" placeholder="Optional note...">
+    </div>
+
+    <!-- Keyboard hints -->
+    <div class="keyboard-hints">
+      <span><kbd>Enter</kbd> Confirm</span>
+      <span><kbd>&larr;</kbd><kbd>&rarr;</kbd> Navigate</span>
+      <span><kbd>A</kbd> Accept</span>
+      <span><kbd>U</kbd> Uncertain</span>
+      <span><kbd>1</kbd>-<kbd>9</kbd> Quick select</span>
+    </div>
+
+    <!-- Nav Buttons -->
+    <div class="nav-buttons">
+      <button id="btnPrev" title="Previous (Left arrow)">&larr; Prev</button>
+      <button id="btnConfirm" class="btn-primary" title="Confirm & Next (Enter)">Confirm & Next &rarr;</button>
+      <button id="btnExport" class="btn-export" title="Export CSV">Export CSV</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Bar -->
+<div class="bottom-bar" id="bottomBar">
+  <div class="progress-bar-track">
+    <div class="progress-bar-fill" id="progressBarFill" style="width:0%"></div>
+  </div>
+  <div class="stats">
+    <span id="statsText">Labeled: 0 | Uncertain: 0 | Left: 0</span>
+  </div>
+</div>
+
+<!-- Uncertain Modal -->
+<div class="modal-overlay" id="uncertainModal">
+  <div class="modal">
+    <h3>Mark as Uncertain</h3>
+    <p style="font-size:13px;color:var(--text-dim);margin-bottom:10px;">Please provide a reason for marking this item as uncertain. A reason is required.</p>
+    <textarea id="uncertainReason" placeholder="Enter reason..."></textarea>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="uncertainCancel">Cancel</button>
+      <button class="btn-confirm" id="uncertainConfirm" disabled>Confirm Uncertain</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ========== STATE ==========
+  let taxonomyData = null;
+  let tasks780 = [];
+  let tasks1000 = [];
+  let manifestData = [];
+  let currentTasks = [];
+  let currentIndex = 0;
+  let annotations = {};
+  let annotatorId = '';
+  let batchId = '780';
+  let startTime = 0;
+  let activeLevel = null;
+  let dataReady = false;
+  let currentAction = '';
+
+  // ========== CSV PARSER ==========
+  function parseCSV(csvStr) {
+    if (!csvStr || !csvStr.trim()) return [];
+    const lines = csvStr.trim().replace(/^\ufeff/, '').split('\n');
+    if (lines.length < 2) return [];
+    const headers = parseCSVLine(lines[0]);
+    const rows = [];
+    for (let i = 1; i < lines.length; i++) {
+      const vals = parseCSVLine(lines[i]);
+      if (vals.length === 0 || (vals.length === 1 && vals[0] === '')) continue;
+      const obj = {};
+      for (let j = 0; j < headers.length; j++) {
+        obj[headers[j].trim()] = (vals[j] || '').trim();
+      }
+      rows.push(obj);
+    }
+    return rows;
+  }
+
+  function parseCSVLine(line) {
+    const result = [];
+    let current = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (inQuotes) {
+        if (c === '"') {
+          if (i + 1 < line.length && line[i + 1] === '"') {
+            current += '"';
+            i++;
+          } else {
+            inQuotes = false;
+          }
+        } else {
+          current += c;
+        }
+      } else {
+        if (c === '"') {
+          inQuotes = true;
+        } else if (c === ',') {
+          result.push(current);
+          current = '';
+        } else {
+          current += c;
+        }
+      }
+    }
+    result.push(current);
+    return result;
+  }
+
+  // ========== TAXONOMY ==========
+  let l1Nodes = [];
+  let nodeMap = {};
+
+  function buildTreeIndex(tree) {
+    if (!tree || !tree.children) return;
+    l1Nodes = [];
+    nodeMap = {};
+
+    function walk(node, depth, parentPath, parentPathEn) {
+      const zhName = node.name || '';
+      const enName = node.name_en || '';
+      const path = parentPath ? parentPath + '/' + zhName : zhName;
+      const pathEn = parentPathEn ? parentPathEn + '/' + enName : enName;
+      const entry = {
+        name: zhName,
+        name_en: enName,
+        path: path,
+        path_en: pathEn,
+        depth: depth,
+        children: []
+      };
+      nodeMap[path] = entry;
+      if (node.children && node.children.length > 0) {
+        for (const child of node.children) {
+          const childEntry = walk(child, depth + 1, path, pathEn);
+          entry.children.push(childEntry);
+        }
+        entry.children.sort((a, b) => (a.name_en || '').localeCompare(b.name_en || ''));
+      }
+      return entry;
+    }
+
+    for (const child of tree.children) {
+      const entry = walk(child, 1, '', '');
+      l1Nodes.push(entry);
+    }
+    l1Nodes.sort((a, b) => (a.name_en || '').localeCompare(b.name_en || ''));
+  }
+
+  function populateSelect(selectEl, nodes, placeholder) {
+    selectEl.innerHTML = '';
+    const opt0 = document.createElement('option');
+    opt0.value = '';
+    opt0.textContent = placeholder || '-- Select --';
+    selectEl.appendChild(opt0);
+    if (!nodes) return;
+    for (const node of nodes) {
+      const opt = document.createElement('option');
+      opt.value = node.path;
+      opt.textContent = (node.name_en || '') + ' (' + (node.name || '') + ')';
+      opt.dataset.name = node.name;
+      opt.dataset.nameEn = node.name_en;
+      selectEl.appendChild(opt);
+    }
+    selectEl.disabled = false;
+  }
+
+  function disableSelectsFrom(level) {
+    for (let i = level; i <= 5; i++) {
+      const sel = document.getElementById('selectL' + i);
+      sel.innerHTML = '<option value="">--- N/A ---</option>';
+      sel.disabled = true;
+      sel.classList.remove('user-selected');
+      const search = document.getElementById('searchL' + i);
+      if (search) search.style.display = 'none';
+    }
+  }
+
+  function onLevelChange(level) {
+    const sel = document.getElementById('selectL' + level);
+    const path = sel.value;
+    disableSelectsFrom(level + 1);
+
+    if (!path) {
+      updateFullPath();
+      updateActionState();
+      return;
+    }
+
+    sel.classList.add('user-selected');
+    const node = nodeMap[path];
+    if (node && node.children && node.children.length > 0) {
+      const nextLevel = level + 1;
+      if (nextLevel <= 5) {
+        const nextSel = document.getElementById('selectL' + nextLevel);
+        populateSelect(nextSel, node.children, '-- Select L' + nextLevel + ' --');
+        if (nextLevel >= 3) {
+          const searchDiv = document.getElementById('searchL' + nextLevel);
+          if (searchDiv) searchDiv.style.display = 'block';
+        }
+        setActiveLevel(nextLevel);
+      }
+    }
+    updateFullPath();
+    updateActionState();
+  }
+
+  function setActiveLevel(level) {
+    activeLevel = level;
+    for (let i = 1; i <= 5; i++) {
+      const row = document.getElementById('levelRow' + i);
+      row.classList.toggle('active-level', i === level);
+    }
+  }
+
+  function getSelectedPath() {
+    let path = '';
+    let pathEn = '';
+    for (let i = 1; i <= 5; i++) {
+      const sel = document.getElementById('selectL' + i);
+      if (sel.disabled || !sel.value) break;
+      const selectedOpt = sel.options[sel.selectedIndex];
+      const zhName = selectedOpt ? selectedOpt.dataset.name || '' : '';
+      const enName = selectedOpt ? selectedOpt.dataset.nameEn || '' : '';
+      path += (path ? '/' : '') + zhName;
+      pathEn += (pathEn ? '/' : '') + enName;
+    }
+    return { path, pathEn };
+  }
+
+  function getSelectedLevels() {
+    const levels = {};
+    for (let i = 1; i <= 5; i++) {
+      const sel = document.getElementById('selectL' + i);
+      if (sel.disabled || !sel.value) break;
+      const selectedOpt = sel.options[sel.selectedIndex];
+      levels['L' + i] = selectedOpt ? selectedOpt.dataset.name || '' : '';
+      levels['L' + i + '_en'] = selectedOpt ? selectedOpt.dataset.nameEn || '' : '';
+    }
+    return levels;
+  }
+
+  function updateFullPath() {
+    const { path, pathEn } = getSelectedPath();
+    const display = document.getElementById('fullPathDisplay');
+    if (path) {
+      display.textContent = pathEn + ' (' + path + ')';
+    } else {
+      display.textContent = '--';
+    }
+  }
+
+  function setSelectorsFromPath(zhPath) {
+    if (!zhPath) return;
+    const parts = zhPath.split('/');
+    let currentPath = '';
+    for (let i = 0; i < parts.length && i < 5; i++) {
+      currentPath += (currentPath ? '/' : '') + parts[i];
+      const level = i + 1;
+      const sel = document.getElementById('selectL' + level);
+      if (sel.disabled) break;
+
+      // Find matching option
+      let found = false;
+      for (let j = 0; j < sel.options.length; j++) {
+        if (sel.options[j].value === currentPath) {
+          sel.selectedIndex = j;
+          sel.classList.add('user-selected');
+          found = true;
+          break;
+        }
+      }
+      if (!found) break;
+
+      // Populate next level
+      const node = nodeMap[currentPath];
+      if (node && node.children && node.children.length > 0) {
+        const nextLevel = level + 1;
+        if (nextLevel <= 5) {
+          const nextSel = document.getElementById('selectL' + nextLevel);
+          populateSelect(nextSel, node.children, '-- Select L' + nextLevel + ' --');
+          if (nextLevel >= 3) {
+            const searchDiv = document.getElementById('searchL' + nextLevel);
+            if (searchDiv) searchDiv.style.display = 'block';
+          }
+        }
+      }
+    }
+    updateFullPath();
+  }
+
+  // ========== SEARCH ==========
+  function setupSearch(level) {
+    const input = document.getElementById('searchInputL' + level);
+    const results = document.getElementById('searchResultsL' + level);
+    if (!input || !results) return;
+
+    input.addEventListener('input', function() {
+      const query = this.value.toLowerCase().trim();
+      results.innerHTML = '';
+      if (!query) {
+        results.style.display = 'none';
+        return;
+      }
+      const sel = document.getElementById('selectL' + level);
+      const matches = [];
+      for (let i = 1; i < sel.options.length; i++) {
+        const opt = sel.options[i];
+        const text = opt.textContent.toLowerCase();
+        if (text.includes(query)) {
+          matches.push({ index: i, text: opt.textContent, value: opt.value });
+        }
+      }
+      if (matches.length === 0) {
+        results.style.display = 'none';
+        return;
+      }
+      results.style.display = 'block';
+      for (const m of matches.slice(0, 20)) {
+        const div = document.createElement('div');
+        div.className = 'result-item';
+        div.textContent = m.text;
+        div.addEventListener('click', function() {
+          sel.selectedIndex = m.index;
+          onLevelChange(level);
+          input.value = '';
+          results.style.display = 'none';
+        });
+        results.appendChild(div);
+      }
+    });
+
+    input.addEventListener('blur', function() {
+      setTimeout(() => { results.style.display = 'none'; }, 200);
+    });
+  }
+
+  // ========== AI ACTION ==========
+  function determineAiAction(currentPath, aiPath) {
+    if (!aiPath || !aiPath.trim()) return 'OVERRIDE';
+    if (currentPath === aiPath) return 'ACCEPT';
+    const cParts = currentPath.split('/');
+    const aParts = aiPath.split('/');
+    let shared = 0;
+    for (let i = 0; i < Math.min(cParts.length, aParts.length); i++) {
+      if (cParts[i] === aParts[i]) shared++;
+      else break;
+    }
+    return shared >= 1 ? 'MODIFY' : 'OVERRIDE';
+  }
+
+  function updateActionState() {
+    const task = currentTasks[currentIndex];
+    if (!task) return;
+    const { path } = getSelectedPath();
+    const aiPath = task.ai_path || '';
+
+    // Clear active states
+    document.getElementById('btnAccept').className = '';
+    document.getElementById('btnModify').className = '';
+    document.getElementById('btnReselect').className = '';
+    document.getElementById('btnUncertain').className = 'btn-uncertain';
+
+    if (currentAction === 'UNCERTAIN') {
+      document.getElementById('btnUncertain').className = 'btn-uncertain active-uncertain';
+      return;
+    }
+
+    if (!path) return;
+
+    const action = determineAiAction(path, aiPath);
+    currentAction = action;
+    if (action === 'ACCEPT') {
+      document.getElementById('btnAccept').className = 'active-accept';
+    } else if (action === 'MODIFY') {
+      document.getElementById('btnModify').className = 'active-modify';
+    } else {
+      document.getElementById('btnReselect').className = 'active-override';
+    }
+  }
+
+  // ========== TASK LOADING ==========
+  function loadTask(index) {
+    if (!currentTasks.length) return;
+    if (index < 0) index = 0;
+    if (index >= currentTasks.length) index = currentTasks.length - 1;
+    currentIndex = index;
+    startTime = Date.now();
+    currentAction = '';
+
+    const task = currentTasks[index];
+    document.getElementById('currentIdx').textContent = index + 1;
+    document.getElementById('totalCount').textContent = currentTasks.length;
+
+    // Image
+    const img = document.getElementById('taskImage');
+    const placeholder = document.getElementById('imagePlaceholder');
+    if (task.upload_url) {
+      img.src = task.upload_url;
+      img.style.display = 'block';
+      placeholder.style.display = 'none';
+      img.onerror = function() {
+        img.style.display = 'none';
+        placeholder.style.display = 'block';
+        placeholder.textContent = 'Failed to load image: ' + task.upload_url;
+      };
+    } else {
+      img.style.display = 'none';
+      placeholder.style.display = 'block';
+      placeholder.textContent = 'No image URL';
+    }
+
+    // Task info
+    document.getElementById('taskIdDisplay').textContent = task.task_id || '--';
+    document.getElementById('taskSourceDisplay').textContent = task.source ? ' | source: ' + task.source : '';
+
+    // AI suggestion
+    const aiDisplay = document.getElementById('aiPathDisplay');
+    if (task.ai_valid === 'true' && task.ai_path) {
+      aiDisplay.textContent = (task.ai_path_en || '') + ' (' + (task.ai_path || '') + ')';
+      aiDisplay.className = 'path valid';
+    } else if (task.ai_path) {
+      aiDisplay.textContent = task.ai_path_en + ' (invalid in V2)';
+      aiDisplay.className = 'path invalid';
+    } else {
+      aiDisplay.textContent = 'No AI prediction available';
+      aiDisplay.className = 'path';
+    }
+
+    // Human reference
+    const humanRefDiv = document.getElementById('humanRef');
+    if (task.has_human_ref === 'true' && task.human_ref_path) {
+      humanRefDiv.style.display = 'block';
+      document.getElementById('humanRefPath').textContent = task.human_ref_path;
+    } else {
+      humanRefDiv.style.display = 'none';
+    }
+
+    // Reset selectors
+    resetSelectors();
+
+    // Load previous annotation if exists
+    const saved = annotations[task.task_id];
+    if (saved) {
+      if (saved.label_path) {
+        setSelectorsFromPath(saved.label_path);
+      }
+      currentAction = saved.ai_action || '';
+      document.getElementById('noteInput').value = saved.uncertain_reason || saved.note || '';
+      updateActionState();
+      if (saved.ai_action === 'UNCERTAIN') {
+        currentAction = 'UNCERTAIN';
+        document.getElementById('btnUncertain').className = 'btn-uncertain active-uncertain';
+      }
+    } else {
+      document.getElementById('noteInput').value = '';
+    }
+
+    updateStats();
+    updateProgressBar();
+  }
+
+  function resetSelectors() {
+    populateSelect(document.getElementById('selectL1'), l1Nodes, '-- Select L1 --');
+    disableSelectsFrom(2);
+    setActiveLevel(1);
+    document.getElementById('selectL1').classList.remove('user-selected');
+    updateFullPath();
+    currentAction = '';
+    updateActionState();
+  }
+
+  // ========== ANNOTATIONS ==========
+  function saveAnnotation() {
+    const task = currentTasks[currentIndex];
+    if (!task) return false;
+
+    const { path, pathEn } = getSelectedPath();
+    const levels = getSelectedLevels();
+
+    if (currentAction === 'UNCERTAIN') {
+      const reason = document.getElementById('noteInput').value.trim();
+      if (!reason) {
+        showToast('Please provide a reason for uncertain marking');
+        return false;
+      }
+      annotations[task.task_id] = {
+        task_id: task.task_id,
+        annotator_id: annotatorId,
+        label_L1: levels.L1 || '',
+        label_L2: levels.L2 || '',
+        label_L3: levels.L3 || '',
+        label_L4: levels.L4 || '',
+        label_L5: levels.L5 || '',
+        label_path: path || '',
+        label_path_en: pathEn || '',
+        ai_action: 'UNCERTAIN',
+        is_uncertain: 'true',
+        uncertain_reason: reason,
+        timestamp: new Date().toISOString(),
+        duration_ms: Date.now() - startTime
+      };
+    } else {
+      if (!path) {
+        showToast('Please select a label path before confirming');
+        return false;
+      }
+      const aiAction = determineAiAction(path, task.ai_path || '');
+      annotations[task.task_id] = {
+        task_id: task.task_id,
+        annotator_id: annotatorId,
+        label_L1: levels.L1 || '',
+        label_L2: levels.L2 || '',
+        label_L3: levels.L3 || '',
+        label_L4: levels.L4 || '',
+        label_L5: levels.L5 || '',
+        label_path: path,
+        label_path_en: pathEn,
+        ai_action: aiAction,
+        is_uncertain: 'false',
+        uncertain_reason: '',
+        timestamp: new Date().toISOString(),
+        duration_ms: Date.now() - startTime
+      };
+    }
+
+    persistToLocalStorage();
+
+    const count = Object.keys(annotations).length;
+    if (count > 0 && count % 100 === 0) {
+      showToast('You have labeled ' + count + ' items. Consider exporting a backup!');
+    }
+
+    return true;
+  }
+
+  function persistToLocalStorage() {
+    if (!annotatorId || !batchId) return;
+    const key = 'annotation_' + annotatorId + '_batch' + batchId;
+    try {
+      localStorage.setItem(key, JSON.stringify(annotations));
+    } catch (e) {
+      console.warn('localStorage write failed:', e);
+    }
+  }
+
+  function loadFromLocalStorage() {
+    if (!annotatorId || !batchId) return;
+    const key = 'annotation_' + annotatorId + '_batch' + batchId;
+    try {
+      const data = localStorage.getItem(key);
+      if (data) {
+        annotations = JSON.parse(data);
+        showToast('Restored ' + Object.keys(annotations).length + ' saved annotations');
+      } else {
+        annotations = {};
+      }
+    } catch (e) {
+      annotations = {};
+    }
+  }
+
+  // ========== STATS ==========
+  function updateStats() {
+    const total = currentTasks.length;
+    const labeled = Object.keys(annotations).filter(id =>
+      currentTasks.some(t => t.task_id === id)
+    ).length;
+    const uncertain = Object.keys(annotations).filter(id =>
+      annotations[id].is_uncertain === 'true' && currentTasks.some(t => t.task_id === id)
+    ).length;
+    const left = total - labeled;
+
+    document.getElementById('statsText').innerHTML =
+      'Labeled: <span class="labeled">' + labeled + '</span> | ' +
+      'Uncertain: <span class="uncertain">' + uncertain + '</span> | ' +
+      'Left: <span class="remaining">' + left + '</span>';
+  }
+
+  function updateProgressBar() {
+    const total = currentTasks.length;
+    if (!total) return;
+    const labeled = Object.keys(annotations).filter(id =>
+      currentTasks.some(t => t.task_id === id)
+    ).length;
+    const pct = (labeled / total * 100).toFixed(1);
+    document.getElementById('progressBarFill').style.width = pct + '%';
+  }
+
+  // ========== EXPORT ==========
+  function exportCSV() {
+    if (!annotatorId) {
+      showToast('Please select an annotator first');
+      return;
+    }
+
+    const taskAnnotations = currentTasks
+      .map(t => annotations[t.task_id])
+      .filter(a => a);
+
+    if (taskAnnotations.length === 0) {
+      showToast('No annotations to export');
+      return;
+    }
+
+    const now = new Date();
+    const ts = now.getFullYear().toString() +
+      String(now.getMonth() + 1).padStart(2, '0') +
+      String(now.getDate()).padStart(2, '0') + '_' +
+      String(now.getHours()).padStart(2, '0') +
+      String(now.getMinutes()).padStart(2, '0') +
+      String(now.getSeconds()).padStart(2, '0');
+
+    const filename = 'annotation_' + annotatorId + '_batch' + batchId + '_' + ts + '.csv';
+
+    const header = 'task_id,annotator_id,label_L1,label_L2,label_L3,label_L4,label_L5,label_path,label_path_en,ai_action,is_uncertain,uncertain_reason,timestamp,duration_ms';
+    const rows = taskAnnotations.map(a => {
+      return [
+        csvEscape(a.task_id),
+        csvEscape(a.annotator_id),
+        csvEscape(a.label_L1),
+        csvEscape(a.label_L2),
+        csvEscape(a.label_L3),
+        csvEscape(a.label_L4),
+        csvEscape(a.label_L5),
+        csvEscape(a.label_path),
+        csvEscape(a.label_path_en),
+        csvEscape(a.ai_action),
+        csvEscape(a.is_uncertain),
+        csvEscape(a.uncertain_reason),
+        csvEscape(a.timestamp),
+        a.duration_ms || 0
+      ].join(',');
+    });
+
+    const bom = '\ufeff';
+    const content = bom + header + '\n' + rows.join('\n') + '\n';
+
+    const blob = new Blob([content], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    showToast('Exported ' + taskAnnotations.length + ' annotations: ' + filename);
+  }
+
+  function csvEscape(val) {
+    if (val == null) return '';
+    val = String(val);
+    if (val.includes(',') || val.includes('"') || val.includes('\n')) {
+      return '"' + val.replace(/"/g, '""') + '"';
+    }
+    return val;
+  }
+
+  // ========== TOAST ==========
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => { toast.classList.remove('show'); }, 3000);
+  }
+
+  // ========== INIT ==========
+  function init() {
+    const hasTaxonomy = typeof window.TREE_A !== 'undefined' && window.TREE_A;
+    const hasTasks780 = typeof window.ANNOTATION_TASKS_780 !== 'undefined' && window.ANNOTATION_TASKS_780;
+    const hasTasks1000 = typeof window.ANNOTATION_TASKS_1000 !== 'undefined' && window.ANNOTATION_TASKS_1000;
+    const hasManifest = typeof window.ASSIGNMENT_MANIFEST !== 'undefined' && window.ASSIGNMENT_MANIFEST;
+
+    if (hasTaxonomy) {
+      taxonomyData = window.TREE_A;
+      buildTreeIndex(taxonomyData);
+    }
+    if (hasTasks780) {
+      tasks780 = parseCSV(window.ANNOTATION_TASKS_780);
+    }
+    if (hasTasks1000) {
+      tasks1000 = parseCSV(window.ANNOTATION_TASKS_1000);
+    }
+    if (hasManifest) {
+      manifestData = parseCSV(window.ASSIGNMENT_MANIFEST);
+    }
+
+    if (!hasTaxonomy || (!hasTasks780 && !hasTasks1000)) {
+      showUploadFallback(hasTaxonomy, hasTasks780, hasTasks1000, hasManifest);
+    } else {
+      dataReady = true;
+      populateSelect(document.getElementById('selectL1'), l1Nodes, '-- Select L1 --');
+    }
+
+    setupEventListeners();
+    setupSearch(3);
+    setupSearch(4);
+    setupSearch(5);
+  }
+
+  function showUploadFallback(hasTax, has780, has1000, hasManifest) {
+    const fallback = document.getElementById('uploadFallback');
+    fallback.style.display = 'flex';
+
+    if (hasTax) {
+      document.getElementById('statusTaxonomy').innerHTML = '<span class="loaded">Loaded (auto)</span>';
+    }
+    if (has780 || has1000) {
+      document.getElementById('statusTasks').innerHTML = '<span class="loaded">Loaded (auto): ' +
+        (has780 ? '780 ' : '') + (has1000 ? '1000' : '') + '</span>';
+    }
+    if (hasManifest) {
+      document.getElementById('statusManifest').innerHTML = '<span class="loaded">Loaded (auto)</span>';
+    }
+
+    document.getElementById('uploadTaxonomy').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        try {
+          const text = ev.target.result;
+          // Try JSON first
+          try {
+            taxonomyData = JSON.parse(text);
+          } catch (_) {
+            // Try as JS: eval the content
+            eval(text);
+            if (window.TREE_A) taxonomyData = window.TREE_A;
+          }
+          if (taxonomyData) {
+            buildTreeIndex(taxonomyData);
+            document.getElementById('statusTaxonomy').innerHTML = '<span class="loaded">Loaded</span>';
+            checkFallbackReady();
+          }
+        } catch (err) {
+          document.getElementById('statusTaxonomy').innerHTML = '<span class="missing">Error: ' + err.message + '</span>';
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    document.getElementById('uploadTasks').addEventListener('change', function(e) {
+      const files = e.target.files;
+      let count = 0;
+      for (const file of files) {
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+          const text = ev.target.result;
+          const rows = parseCSV(text);
+          if (file.name.includes('780')) {
+            tasks780 = rows;
+          } else if (file.name.includes('1000')) {
+            tasks1000 = rows;
+          } else {
+            // Guess from content
+            if (rows.length > 0 && rows[0].source === '780') {
+              tasks780 = rows;
+            } else {
+              tasks1000 = rows;
+            }
+          }
+          count++;
+          document.getElementById('statusTasks').innerHTML = '<span class="loaded">Loaded ' + count + ' file(s): ' +
+            (tasks780.length ? tasks780.length + ' (780) ' : '') +
+            (tasks1000.length ? tasks1000.length + ' (1000)' : '') + '</span>';
+          checkFallbackReady();
+        };
+        reader.readAsText(file);
+      }
+    });
+
+    document.getElementById('uploadManifest').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        manifestData = parseCSV(ev.target.result);
+        document.getElementById('statusManifest').innerHTML = '<span class="loaded">Loaded ' + manifestData.length + ' assignments</span>';
+        checkFallbackReady();
+      };
+      reader.readAsText(file);
+    });
+
+    document.getElementById('startBtn').addEventListener('click', function() {
+      fallback.style.display = 'none';
+      dataReady = true;
+      populateSelect(document.getElementById('selectL1'), l1Nodes, '-- Select L1 --');
+    });
+  }
+
+  function checkFallbackReady() {
+    const ready = taxonomyData && (tasks780.length > 0 || tasks1000.length > 0);
+    document.getElementById('startBtn').disabled = !ready;
+  }
+
+  // ========== EVENT LISTENERS ==========
+  function setupEventListeners() {
+    // Annotator select
+    document.getElementById('annotatorSelect').addEventListener('change', function() {
+      annotatorId = this.value;
+      if (annotatorId) {
+        loadFromLocalStorage();
+        filterAndLoadTasks();
+      }
+    });
+
+    // Batch select
+    document.getElementById('batchSelect').addEventListener('change', function() {
+      batchId = this.value;
+      if (annotatorId) {
+        loadFromLocalStorage();
+        filterAndLoadTasks();
+      }
+    });
+
+    // Level selectors
+    for (let i = 1; i <= 5; i++) {
+      (function(level) {
+        document.getElementById('selectL' + level).addEventListener('change', function() {
+          onLevelChange(level);
+        });
+        document.getElementById('selectL' + level).addEventListener('focus', function() {
+          setActiveLevel(level);
+        });
+      })(i);
+    }
+
+    // Action buttons
+    document.getElementById('btnAccept').addEventListener('click', doAccept);
+    document.getElementById('btnModify').addEventListener('click', function() {
+      // Modify just means user will adjust selectors
+      showToast('Adjust the path using selectors, then Confirm');
+    });
+    document.getElementById('btnReselect').addEventListener('click', function() {
+      resetSelectors();
+      showToast('Selectors cleared. Choose a new path.');
+    });
+    document.getElementById('btnUncertain').addEventListener('click', doUncertain);
+
+    // Nav buttons
+    document.getElementById('btnPrev').addEventListener('click', function() { goTo(currentIndex - 1); });
+    document.getElementById('btnConfirm').addEventListener('click', doConfirm);
+    document.getElementById('btnExport').addEventListener('click', exportCSV);
+
+    // Uncertain modal
+    document.getElementById('uncertainReason').addEventListener('input', function() {
+      document.getElementById('uncertainConfirm').disabled = !this.value.trim();
+    });
+    document.getElementById('uncertainCancel').addEventListener('click', function() {
+      document.getElementById('uncertainModal').classList.remove('active');
+    });
+    document.getElementById('uncertainConfirm').addEventListener('click', function() {
+      const reason = document.getElementById('uncertainReason').value.trim();
+      if (!reason) return;
+      currentAction = 'UNCERTAIN';
+      document.getElementById('noteInput').value = reason;
+      document.getElementById('uncertainModal').classList.remove('active');
+      updateActionState();
+      document.getElementById('btnUncertain').className = 'btn-uncertain active-uncertain';
+      showToast('Marked as Uncertain');
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      // Don't capture if user is typing in input/textarea/select
+      const tag = e.target.tagName.toLowerCase();
+      if (tag === 'input' || tag === 'textarea') return;
+
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        doConfirm();
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        goTo(currentIndex - 1);
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        goTo(currentIndex + 1);
+      } else if (e.key === 'a' || e.key === 'A') {
+        if (!e.ctrlKey && !e.metaKey) {
+          e.preventDefault();
+          doAccept();
+        }
+      } else if (e.key === 'u' || e.key === 'U') {
+        if (!e.ctrlKey && !e.metaKey) {
+          e.preventDefault();
+          doUncertain();
+        }
+      } else if (e.key >= '1' && e.key <= '9' && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        quickSelect(parseInt(e.key));
+      }
+    });
+  }
+
+  function doAccept() {
+    const task = currentTasks[currentIndex];
+    if (!task || !task.ai_path || task.ai_valid !== 'true') {
+      showToast('No valid AI suggestion to accept');
+      return;
+    }
+    resetSelectors();
+    setSelectorsFromPath(task.ai_path);
+    currentAction = 'ACCEPT';
+    updateActionState();
+    showToast('AI suggestion accepted');
+  }
+
+  function doUncertain() {
+    document.getElementById('uncertainReason').value = document.getElementById('noteInput').value || '';
+    document.getElementById('uncertainConfirm').disabled = !document.getElementById('uncertainReason').value.trim();
+    document.getElementById('uncertainModal').classList.add('active');
+    document.getElementById('uncertainReason').focus();
+  }
+
+  function doConfirm() {
+    if (!annotatorId) {
+      showToast('Please select an annotator');
+      return;
+    }
+    if (!currentTasks.length) return;
+
+    if (saveAnnotation()) {
+      if (currentIndex < currentTasks.length - 1) {
+        loadTask(currentIndex + 1);
+      } else {
+        showToast('All tasks completed! Please export your results.');
+      }
+    }
+  }
+
+  function goTo(index) {
+    if (index < 0 || index >= currentTasks.length) return;
+    loadTask(index);
+  }
+
+  function quickSelect(num) {
+    if (!activeLevel) return;
+    const sel = document.getElementById('selectL' + activeLevel);
+    if (sel.disabled) return;
+    // num corresponds to 1-based option (skip the placeholder at index 0)
+    if (num < sel.options.length) {
+      sel.selectedIndex = num;
+      onLevelChange(activeLevel);
+    }
+  }
+
+  function filterAndLoadTasks() {
+    const allTasks = batchId === '780' ? tasks780 : tasks1000;
+
+    if (manifestData.length > 0 && annotatorId) {
+      const assignedIds = new Set(
+        manifestData
+          .filter(m => m.annotator_id === annotatorId)
+          .map(m => m.task_id)
+      );
+      currentTasks = allTasks.filter(t => assignedIds.has(t.task_id));
+    } else {
+      currentTasks = allTasks.slice();
+    }
+
+    if (currentTasks.length === 0) {
+      showToast('No tasks found for annotator ' + annotatorId + ' in batch ' + batchId);
+      document.getElementById('currentIdx').textContent = '0';
+      document.getElementById('totalCount').textContent = '0';
+      return;
+    }
+
+    // Find first unannotated task
+    let startIdx = 0;
+    for (let i = 0; i < currentTasks.length; i++) {
+      if (!annotations[currentTasks[i].task_id]) {
+        startIdx = i;
+        break;
+      }
+    }
+
+    loadTask(startIdx);
+  }
+
+  // Start
+  init();
+})();
+</script>
+</body>
+</html>

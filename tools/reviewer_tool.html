@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Review Tool v1.0</title>
+<script src="../taxonomy/visual_elements_global.js"></script>
+<style>
+:root {
+  --bg: #1a1a2e;
+  --surface: #16213e;
+  --surface2: #1c2a4a;
+  --text: #e0e0e0;
+  --text-dim: #8899aa;
+  --accent: #4fc3f7;
+  --accent-hover: #81d4fa;
+  --green: #22c55e;
+  --red: #ef4444;
+  --orange: #f59e0b;
+  --yellow: #fbbf24;
+  --border: #2a3a5e;
+  --ai-bg: #2a2a3e;
+  --user-bg: #1a3a5e;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ===== TOP BAR ===== */
+.top-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  min-height: 48px;
+}
+
+.top-bar .title { font-size: 16px; font-weight: 700; color: var(--accent); white-space: nowrap; }
+.top-bar .controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.top-bar label { font-size: 13px; color: var(--text-dim); }
+.top-bar select {
+  background: var(--surface2); color: var(--text); border: 1px solid var(--border);
+  padding: 4px 8px; border-radius: 4px; font-size: 13px;
+}
+.top-bar .progress-text { font-size: 13px; color: var(--text-dim); }
+.top-bar .progress-text span { color: var(--accent); font-weight: 600; }
+
+.taxonomy-link {
+  font-size: 12px; background: var(--surface); padding: 4px 20px; border-bottom: 1px solid var(--border);
+}
+.taxonomy-link a { color: var(--accent); text-decoration: none; }
+.taxonomy-link a:hover { text-decoration: underline; }
+
+/* ===== MAIN CONTENT ===== */
+.main-content { display: flex; flex: 1; overflow: hidden; }
+
+.left-panel {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 20px; border-right: 1px solid var(--border); min-width: 300px; overflow: auto;
+}
+
+.image-container {
+  max-width: 100%; max-height: calc(100vh - 250px); display: flex; align-items: center;
+  justify-content: center; background: #111; border-radius: 8px; overflow: hidden;
+  border: 1px solid var(--border); position: relative; min-height: 200px; width: 100%;
+}
+
+.image-container img { max-width: 100%; max-height: calc(100vh - 260px); object-fit: contain; }
+.image-container .placeholder { color: var(--text-dim); font-size: 14px; text-align: center; padding: 40px; }
+
+.task-info { margin-top: 12px; font-size: 13px; color: var(--text-dim); text-align: center; }
+.task-info .task-id { color: var(--accent); font-weight: 600; font-size: 15px; }
+
+/* Right Panel */
+.right-panel {
+  width: 520px; min-width: 440px; display: flex; flex-direction: column;
+  padding: 16px; overflow-y: auto; gap: 12px;
+}
+
+/* Comparison panel */
+.comparison-panel {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 14px;
+}
+
+.comparison-panel .panel-title {
+  font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 10px;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+
+.ann-row {
+  display: flex; align-items: flex-start; gap: 8px; padding: 6px 8px; border-radius: 4px;
+  margin-bottom: 4px; font-size: 13px; border-left: 3px solid transparent;
+}
+
+.ann-row .ann-label {
+  font-weight: 700; min-width: 52px; flex-shrink: 0; color: var(--text-dim);
+}
+
+.ann-row .ann-path { flex: 1; word-break: break-word; }
+.ann-row .ann-action {
+  font-size: 11px; padding: 1px 6px; border-radius: 8px; flex-shrink: 0;
+}
+
+.ann-row.highlight-agree { border-left-color: var(--green); }
+.ann-row.highlight-disagree { border-left-color: var(--red); }
+
+.path-segment { display: inline; }
+.path-segment.agree { color: var(--green); }
+.path-segment.disagree { color: var(--red); font-weight: 700; }
+
+.disagreement-note {
+  font-size: 12px; color: var(--orange); margin-top: 8px; padding: 6px 8px;
+  background: rgba(245,158,11,0.1); border-radius: 4px;
+}
+
+/* Decision radios */
+.decision-section { display: flex; flex-direction: column; gap: 6px; }
+.decision-section .section-title {
+  font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 4px;
+}
+
+.decision-options { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.decision-options label {
+  display: flex; align-items: center; gap: 6px; padding: 6px 12px;
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 6px;
+  cursor: pointer; font-size: 13px; transition: all 0.15s;
+}
+
+.decision-options label:hover { border-color: var(--accent); }
+
+.decision-options input[type="radio"] { accent-color: var(--accent); }
+
+.decision-options label.selected {
+  border-color: var(--accent); background: var(--user-bg);
+}
+
+/* Level selectors */
+.selector-section { display: flex; flex-direction: column; gap: 6px; }
+
+.level-row { display: flex; align-items: center; gap: 8px; }
+.level-label { width: 28px; font-size: 12px; font-weight: 700; color: var(--accent); flex-shrink: 0; }
+
+.level-select-wrapper { flex: 1; position: relative; }
+.level-select-wrapper select {
+  width: 100%; background: var(--surface2); color: var(--text); border: 1px solid var(--border);
+  padding: 6px 10px; border-radius: 4px; font-size: 13px; cursor: pointer;
+}
+.level-select-wrapper select:disabled { opacity: 0.4; cursor: not-allowed; }
+.level-select-wrapper select:focus { border-color: var(--accent); outline: none; }
+.level-select-wrapper select.user-selected { border-color: var(--accent); background: var(--user-bg); }
+
+.level-search { position: relative; flex: 1; display: none; }
+.level-search input {
+  width: 100%; background: var(--surface2); color: var(--text); border: 1px solid var(--border);
+  padding: 5px 8px; border-radius: 4px; font-size: 12px;
+}
+.level-search input:focus { border-color: var(--accent); outline: none; }
+.level-search .search-results {
+  position: absolute; top: 100%; left: 0; right: 0; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 0 0 4px 4px; max-height: 200px;
+  overflow-y: auto; z-index: 100; display: none;
+}
+.level-search .search-results .result-item {
+  padding: 6px 10px; font-size: 12px; cursor: pointer; border-bottom: 1px solid var(--border);
+}
+.level-search .search-results .result-item:hover { background: var(--accent); color: #000; }
+
+.full-path-display {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 6px;
+  padding: 8px 12px; font-size: 13px;
+}
+.full-path-display .label { font-size: 11px; color: var(--text-dim); margin-bottom: 4px; }
+.full-path-display .path { color: var(--accent); font-weight: 500; }
+
+/* Note */
+.note-section { display: flex; align-items: center; gap: 8px; }
+.note-section label { font-size: 12px; color: var(--text-dim); flex-shrink: 0; }
+.note-section textarea {
+  flex: 1; background: var(--surface2); color: var(--text); border: 1px solid var(--border);
+  padding: 6px 10px; border-radius: 4px; font-size: 13px; resize: vertical; min-height: 40px;
+}
+.note-section textarea:focus { border-color: var(--accent); outline: none; }
+
+/* Nav buttons */
+.nav-buttons { display: flex; gap: 8px; margin-top: auto; padding-top: 8px; }
+.nav-buttons button {
+  padding: 8px 16px; border: 1px solid var(--border); border-radius: 6px;
+  font-size: 13px; font-weight: 600; cursor: pointer; background: var(--surface2);
+  color: var(--text); transition: all 0.15s;
+}
+.nav-buttons button:hover { border-color: var(--accent); color: var(--accent); }
+.nav-buttons button.btn-primary { background: var(--accent); color: #000; border-color: var(--accent); }
+.nav-buttons button.btn-primary:hover { background: var(--accent-hover); }
+.nav-buttons button.btn-export { background: var(--green); color: #000; border-color: var(--green); }
+.nav-buttons button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Bottom bar */
+.bottom-bar {
+  background: var(--surface); border-top: 1px solid var(--border); padding: 8px 20px;
+  display: flex; align-items: center; gap: 16px;
+}
+.progress-bar-track { flex: 1; height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+.progress-bar-fill { height: 100%; background: var(--accent); border-radius: 4px; transition: width 0.3s; }
+.stats { font-size: 12px; color: var(--text-dim); white-space: nowrap; }
+.stats .reviewed { color: var(--green); }
+.stats .remaining { color: var(--text-dim); }
+
+/* Upload fallback */
+.upload-fallback {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg);
+  z-index: 1000; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 20px; padding: 40px;
+}
+.upload-fallback h2 { color: var(--accent); font-size: 22px; }
+.upload-fallback p { color: var(--text-dim); font-size: 14px; text-align: center; max-width: 500px; }
+.upload-fallback .upload-group { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 500px; }
+.upload-fallback .upload-item {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px;
+}
+.upload-fallback .upload-item label { display: block; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+.upload-fallback .upload-item .status { font-size: 12px; margin-top: 6px; }
+.upload-fallback .upload-item .status.loaded { color: var(--green); }
+.upload-fallback .upload-item .status.missing { color: var(--orange); }
+.upload-fallback button.start-btn {
+  background: var(--accent); color: #000; border: none; padding: 12px 32px; border-radius: 6px;
+  font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 10px;
+}
+.upload-fallback button.start-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Keyboard hints */
+.keyboard-hints {
+  font-size: 11px; color: var(--text-dim); display: flex; gap: 12px; flex-wrap: wrap;
+}
+.keyboard-hints kbd {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 3px;
+  padding: 1px 5px; font-family: monospace; font-size: 11px;
+}
+
+/* Toast */
+.toast {
+  position: fixed; top: 20px; right: 20px; background: var(--surface); border: 1px solid var(--accent);
+  color: var(--text); padding: 12px 20px; border-radius: 6px; font-size: 13px; z-index: 600;
+  opacity: 0; transform: translateY(-10px); transition: all 0.3s; pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
+.level-row.active-level .level-label { color: var(--yellow); }
+</style>
+</head>
+<body>
+
+<!-- Upload Fallback -->
+<div class="upload-fallback" id="uploadFallback" style="display:none;">
+  <h2>Review Tool v1.0</h2>
+  <p>Upload the required files to begin reviewing.</p>
+  <div class="upload-group">
+    <div class="upload-item">
+      <label>Taxonomy JSON (visual_elements_global.json)</label>
+      <input type="file" accept=".json,.js" id="uploadTaxonomy">
+      <div class="status" id="statusTaxonomy"><span class="missing">Not loaded</span></div>
+    </div>
+    <div class="upload-item">
+      <label>Review Tasks CSV (stage1_needs_review.csv)</label>
+      <input type="file" accept=".csv" id="uploadReviewTasks">
+      <div class="status" id="statusReviewTasks"><span class="missing">Not loaded</span></div>
+    </div>
+  </div>
+  <button class="start-btn" id="startBtn" disabled>Start Review</button>
+</div>
+
+<!-- Main UI -->
+<div class="top-bar" id="topBar">
+  <span class="title">Review Tool v1.0</span>
+  <div class="controls">
+    <label>Reviewer:</label>
+    <select id="reviewerSelect">
+      <option value="">-- Select --</option>
+      <option value="R1">R1</option>
+      <option value="R2">R2</option>
+    </select>
+    <span class="progress-text">
+      <span id="currentIdx">0</span> / <span id="totalCount">0</span>
+    </span>
+  </div>
+</div>
+<div class="taxonomy-link">
+  View Taxonomy Tree: <a href="https://rajeshzheng.github.io/ls-taxonomy-v2_202602/" target="_blank">https://rajeshzheng.github.io/ls-taxonomy-v2_202602/</a>
+</div>
+
+<div class="main-content" id="mainContent">
+  <div class="left-panel">
+    <div class="image-container" id="imageContainer">
+      <div class="placeholder" id="imagePlaceholder">Select a reviewer to begin</div>
+      <img id="taskImage" style="display:none;" alt="Task image">
+    </div>
+    <div class="task-info" id="taskInfo">
+      <span class="task-id" id="taskIdDisplay">--</span>
+      <span id="taskSourceDisplay"></span>
+    </div>
+  </div>
+
+  <div class="right-panel" id="rightPanel">
+    <!-- Comparison Panel -->
+    <div class="comparison-panel" id="comparisonPanel">
+      <div class="panel-title">Annotation Comparison</div>
+      <div id="comparisonContent"></div>
+      <div class="disagreement-note" id="disagreementNote" style="display:none;"></div>
+    </div>
+
+    <!-- Decision -->
+    <div class="decision-section">
+      <div class="section-title">Your Decision</div>
+      <div class="decision-options" id="decisionOptions"></div>
+    </div>
+
+    <!-- Level Selectors (for New Path) -->
+    <div class="selector-section" id="selectorSection" style="display:none;">
+      <div class="level-row" data-level="1" id="levelRow1">
+        <span class="level-label">L1</span>
+        <div class="level-select-wrapper"><select id="selectL1"><option value="">-- Select L1 --</option></select></div>
+      </div>
+      <div class="level-row" data-level="2" id="levelRow2">
+        <span class="level-label">L2</span>
+        <div class="level-select-wrapper"><select id="selectL2" disabled><option value="">-- Select L2 --</option></select></div>
+      </div>
+      <div class="level-row" data-level="3" id="levelRow3">
+        <span class="level-label">L3</span>
+        <div class="level-select-wrapper"><select id="selectL3" disabled><option value="">-- Select L3 --</option></select></div>
+        <div class="level-search" id="searchL3">
+          <input type="text" placeholder="Search L3..." id="searchInputL3">
+          <div class="search-results" id="searchResultsL3"></div>
+        </div>
+      </div>
+      <div class="level-row" data-level="4" id="levelRow4">
+        <span class="level-label">L4</span>
+        <div class="level-select-wrapper"><select id="selectL4" disabled><option value="">-- Select L4 --</option></select></div>
+        <div class="level-search" id="searchL4">
+          <input type="text" placeholder="Search L4..." id="searchInputL4">
+          <div class="search-results" id="searchResultsL4"></div>
+        </div>
+      </div>
+      <div class="level-row" data-level="5" id="levelRow5">
+        <span class="level-label">L5</span>
+        <div class="level-select-wrapper"><select id="selectL5" disabled><option value="">-- Select L5 --</option></select></div>
+        <div class="level-search" id="searchL5">
+          <input type="text" placeholder="Search L5..." id="searchInputL5">
+          <div class="search-results" id="searchResultsL5"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="full-path-display">
+      <div class="label">Review Path</div>
+      <div class="path" id="fullPathDisplay">--</div>
+    </div>
+
+    <!-- Note -->
+    <div class="note-section">
+      <label>Reason:</label>
+      <textarea id="noteInput" placeholder="Decision reason (optional)..." rows="2"></textarea>
+    </div>
+
+    <div class="keyboard-hints">
+      <span><kbd>Enter</kbd> Confirm</span>
+      <span><kbd>&larr;</kbd><kbd>&rarr;</kbd> Navigate</span>
+    </div>
+
+    <div class="nav-buttons">
+      <button id="btnPrev">&larr; Prev</button>
+      <button id="btnConfirm" class="btn-primary">Confirm & Next &rarr;</button>
+      <button id="btnExport" class="btn-export">Export CSV</button>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-bar" id="bottomBar">
+  <div class="progress-bar-track">
+    <div class="progress-bar-fill" id="progressBarFill" style="width:0%"></div>
+  </div>
+  <div class="stats"><span id="statsText">Reviewed: 0 | Left: 0</span></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ========== STATE ==========
+  let taxonomyData = null;
+  let reviewTasks = [];
+  let currentIndex = 0;
+  let reviews = {};
+  let reviewerId = '';
+  let dataReady = false;
+  let currentDecision = '';
+  let activeLevel = null;
+
+  // ========== CSV PARSER ==========
+  function parseCSV(csvStr) {
+    if (!csvStr || !csvStr.trim()) return [];
+    const lines = csvStr.trim().replace(/^\ufeff/, '').split('\n');
+    if (lines.length < 2) return [];
+    const headers = parseCSVLine(lines[0]);
+    const rows = [];
+    for (let i = 1; i < lines.length; i++) {
+      const vals = parseCSVLine(lines[i]);
+      if (vals.length === 0 || (vals.length === 1 && vals[0] === '')) continue;
+      const obj = {};
+      for (let j = 0; j < headers.length; j++) {
+        obj[headers[j].trim()] = (vals[j] || '').trim();
+      }
+      rows.push(obj);
+    }
+    return rows;
+  }
+
+  function parseCSVLine(line) {
+    const result = [];
+    let current = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (inQuotes) {
+        if (c === '"') {
+          if (i + 1 < line.length && line[i + 1] === '"') { current += '"'; i++; }
+          else { inQuotes = false; }
+        } else { current += c; }
+      } else {
+        if (c === '"') { inQuotes = true; }
+        else if (c === ',') { result.push(current); current = ''; }
+        else { current += c; }
+      }
+    }
+    result.push(current);
+    return result;
+  }
+
+  // ========== TAXONOMY ==========
+  let l1Nodes = [];
+  let nodeMap = {};
+
+  function buildTreeIndex(tree) {
+    if (!tree || !tree.children) return;
+    l1Nodes = [];
+    nodeMap = {};
+
+    function walk(node, depth, parentPath, parentPathEn) {
+      const zhName = node.name || '';
+      const enName = node.name_en || '';
+      const path = parentPath ? parentPath + '/' + zhName : zhName;
+      const pathEn = parentPathEn ? parentPathEn + '/' + enName : enName;
+      const entry = { name: zhName, name_en: enName, path, path_en: pathEn, depth, children: [] };
+      nodeMap[path] = entry;
+      if (node.children && node.children.length > 0) {
+        for (const child of node.children) {
+          entry.children.push(walk(child, depth + 1, path, pathEn));
+        }
+        entry.children.sort((a, b) => (a.name_en || '').localeCompare(b.name_en || ''));
+      }
+      return entry;
+    }
+
+    for (const child of tree.children) { l1Nodes.push(walk(child, 1, '', '')); }
+    l1Nodes.sort((a, b) => (a.name_en || '').localeCompare(b.name_en || ''));
+  }
+
+  function populateSelect(selectEl, nodes, placeholder) {
+    selectEl.innerHTML = '';
+    const opt0 = document.createElement('option');
+    opt0.value = '';
+    opt0.textContent = placeholder || '-- Select --';
+    selectEl.appendChild(opt0);
+    if (!nodes) return;
+    for (const node of nodes) {
+      const opt = document.createElement('option');
+      opt.value = node.path;
+      opt.textContent = (node.name_en || '') + ' (' + (node.name || '') + ')';
+      opt.dataset.name = node.name;
+      opt.dataset.nameEn = node.name_en;
+      selectEl.appendChild(opt);
+    }
+    selectEl.disabled = false;
+  }
+
+  function disableSelectsFrom(level) {
+    for (let i = level; i <= 5; i++) {
+      const sel = document.getElementById('selectL' + i);
+      sel.innerHTML = '<option value="">--- N/A ---</option>';
+      sel.disabled = true;
+      sel.classList.remove('user-selected');
+      const search = document.getElementById('searchL' + i);
+      if (search) search.style.display = 'none';
+    }
+  }
+
+  function onLevelChange(level) {
+    const sel = document.getElementById('selectL' + level);
+    const path = sel.value;
+    disableSelectsFrom(level + 1);
+    if (!path) { updateFullPath(); return; }
+    sel.classList.add('user-selected');
+    const node = nodeMap[path];
+    if (node && node.children && node.children.length > 0) {
+      const nextLevel = level + 1;
+      if (nextLevel <= 5) {
+        const nextSel = document.getElementById('selectL' + nextLevel);
+        populateSelect(nextSel, node.children, '-- Select L' + nextLevel + ' --');
+        if (nextLevel >= 3) {
+          const sd = document.getElementById('searchL' + nextLevel);
+          if (sd) sd.style.display = 'block';
+        }
+        setActiveLevel(nextLevel);
+      }
+    }
+    updateFullPath();
+  }
+
+  function setActiveLevel(level) {
+    activeLevel = level;
+    for (let i = 1; i <= 5; i++) {
+      document.getElementById('levelRow' + i).classList.toggle('active-level', i === level);
+    }
+  }
+
+  function getSelectedPath() {
+    let path = '', pathEn = '';
+    for (let i = 1; i <= 5; i++) {
+      const sel = document.getElementById('selectL' + i);
+      if (sel.disabled || !sel.value) break;
+      const opt = sel.options[sel.selectedIndex];
+      const zh = opt ? opt.dataset.name || '' : '';
+      const en = opt ? opt.dataset.nameEn || '' : '';
+      path += (path ? '/' : '') + zh;
+      pathEn += (pathEn ? '/' : '') + en;
+    }
+    return { path, pathEn };
+  }
+
+  function updateFullPath() {
+    const { path, pathEn } = getSelectedPath();
+    const display = document.getElementById('fullPathDisplay');
+    if (currentDecision && currentDecision !== 'NEW_PATH') {
+      const task = reviewTasks[currentIndex];
+      const rPath = getReviewPathForDecision(task, currentDecision);
+      if (rPath) {
+        display.textContent = rPath;
+        return;
+      }
+    }
+    display.textContent = path ? pathEn + ' (' + path + ')' : '--';
+  }
+
+  function setSelectorsFromPath(zhPath) {
+    if (!zhPath) return;
+    const parts = zhPath.split('/');
+    let currentPath = '';
+    for (let i = 0; i < parts.length && i < 5; i++) {
+      currentPath += (currentPath ? '/' : '') + parts[i];
+      const level = i + 1;
+      const sel = document.getElementById('selectL' + level);
+      if (sel.disabled) break;
+      let found = false;
+      for (let j = 0; j < sel.options.length; j++) {
+        if (sel.options[j].value === currentPath) {
+          sel.selectedIndex = j;
+          sel.classList.add('user-selected');
+          found = true;
+          break;
+        }
+      }
+      if (!found) break;
+      const node = nodeMap[currentPath];
+      if (node && node.children && node.children.length > 0) {
+        const nextLevel = level + 1;
+        if (nextLevel <= 5) {
+          const nextSel = document.getElementById('selectL' + nextLevel);
+          populateSelect(nextSel, node.children, '-- Select L' + nextLevel + ' --');
+          if (nextLevel >= 3) {
+            const sd = document.getElementById('searchL' + nextLevel);
+            if (sd) sd.style.display = 'block';
+          }
+        }
+      }
+    }
+    updateFullPath();
+  }
+
+  function resetSelectors() {
+    populateSelect(document.getElementById('selectL1'), l1Nodes, '-- Select L1 --');
+    disableSelectsFrom(2);
+    setActiveLevel(1);
+    document.getElementById('selectL1').classList.remove('user-selected');
+    updateFullPath();
+  }
+
+  function setupSearch(level) {
+    const input = document.getElementById('searchInputL' + level);
+    const results = document.getElementById('searchResultsL' + level);
+    if (!input || !results) return;
+    input.addEventListener('input', function() {
+      const query = this.value.toLowerCase().trim();
+      results.innerHTML = '';
+      if (!query) { results.style.display = 'none'; return; }
+      const sel = document.getElementById('selectL' + level);
+      const matches = [];
+      for (let i = 1; i < sel.options.length; i++) {
+        if (sel.options[i].textContent.toLowerCase().includes(query)) {
+          matches.push({ index: i, text: sel.options[i].textContent, value: sel.options[i].value });
+        }
+      }
+      if (!matches.length) { results.style.display = 'none'; return; }
+      results.style.display = 'block';
+      for (const m of matches.slice(0, 20)) {
+        const div = document.createElement('div');
+        div.className = 'result-item';
+        div.textContent = m.text;
+        div.addEventListener('click', function() {
+          sel.selectedIndex = m.index;
+          onLevelChange(level);
+          input.value = '';
+          results.style.display = 'none';
+        });
+        results.appendChild(div);
+      }
+    });
+    input.addEventListener('blur', function() { setTimeout(() => { results.style.display = 'none'; }, 200); });
+  }
+
+  // ========== COMPARISON ==========
+  function getAnnotatorKeys(task) {
+    // Find annotator columns dynamically: ann_{X}_path pattern
+    const keys = [];
+    for (const key of Object.keys(task)) {
+      const m = key.match(/^ann_([A-Z])_path$/);
+      if (m) keys.push(m[1]);
+    }
+    return keys;
+  }
+
+  function buildComparison(task) {
+    const container = document.getElementById('comparisonContent');
+    container.innerHTML = '';
+    const decisionOptions = document.getElementById('decisionOptions');
+    decisionOptions.innerHTML = '';
+
+    const annKeys = getAnnotatorKeys(task);
+    const allPaths = [];
+
+    // Annotator rows
+    for (const k of annKeys) {
+      const path = task['ann_' + k + '_path'] || '';
+      const action = task['ann_' + k + '_action'] || '';
+      const uncertain = task['ann_' + k + '_uncertain'] === 'true';
+      allPaths.push(path);
+
+      const row = document.createElement('div');
+      row.className = 'ann-row';
+
+      const labelEl = document.createElement('span');
+      labelEl.className = 'ann-label';
+      labelEl.textContent = 'Ann ' + k + ':';
+
+      const pathEl = document.createElement('span');
+      pathEl.className = 'ann-path';
+      pathEl.textContent = path || '(empty)';
+
+      const actionEl = document.createElement('span');
+      actionEl.className = 'ann-action';
+      actionEl.textContent = action + (uncertain ? ' ?' : '');
+      actionEl.style.background = action === 'ACCEPT' ? 'rgba(34,197,94,0.2)' :
+                                   action === 'MODIFY' ? 'rgba(79,195,247,0.2)' :
+                                   action === 'UNCERTAIN' ? 'rgba(245,158,11,0.2)' : 'rgba(239,68,68,0.2)';
+
+      row.appendChild(labelEl);
+      row.appendChild(pathEl);
+      row.appendChild(actionEl);
+      container.appendChild(row);
+
+      // Decision option
+      const radioLabel = document.createElement('label');
+      radioLabel.innerHTML = '<input type="radio" name="decision" value="PICK_ANN_' + k + '"> Pick Ann ' + k;
+      decisionOptions.appendChild(radioLabel);
+    }
+
+    // AI row
+    if (task.ai_path) {
+      allPaths.push(task.ai_path);
+      const row = document.createElement('div');
+      row.className = 'ann-row';
+      row.innerHTML = '<span class="ann-label" style="color:var(--text-dim)">AI:</span>' +
+        '<span class="ann-path" style="color:#888">' + (task.ai_path || '--') + '</span>' +
+        '<span class="ann-action" style="background:rgba(100,100,100,0.2)">AI</span>';
+      container.appendChild(row);
+
+      const radioAI = document.createElement('label');
+      radioAI.innerHTML = '<input type="radio" name="decision" value="PICK_AI"> Pick AI';
+      decisionOptions.appendChild(radioAI);
+    }
+
+    // Human reference (only for 780)
+    if (task.source === '780' && task.human_ref_path) {
+      const row = document.createElement('div');
+      row.className = 'ann-row';
+      row.innerHTML = '<span class="ann-label" style="color:var(--green)">Human:</span>' +
+        '<span class="ann-path" style="color:var(--green)">' + task.human_ref_path + ' (from 780 dataset)</span>';
+      container.appendChild(row);
+
+      const radioH = document.createElement('label');
+      radioH.innerHTML = '<input type="radio" name="decision" value="PICK_HUMAN"> Pick Human';
+      decisionOptions.appendChild(radioH);
+    }
+
+    // New path option
+    const radioNew = document.createElement('label');
+    radioNew.innerHTML = '<input type="radio" name="decision" value="NEW_PATH"> New Path';
+    decisionOptions.appendChild(radioNew);
+
+    // Color-highlight disagreement
+    highlightDisagreement(task, annKeys);
+
+    // Decision change handler
+    decisionOptions.querySelectorAll('input[type="radio"]').forEach(radio => {
+      radio.addEventListener('change', function() {
+        currentDecision = this.value;
+        // Highlight selected label
+        decisionOptions.querySelectorAll('label').forEach(l => l.classList.remove('selected'));
+        this.parentElement.classList.add('selected');
+
+        if (this.value === 'NEW_PATH') {
+          document.getElementById('selectorSection').style.display = 'flex';
+          resetSelectors();
+        } else {
+          document.getElementById('selectorSection').style.display = 'none';
+          // Auto-fill path display
+          const rPath = getReviewPathForDecision(task, this.value);
+          document.getElementById('fullPathDisplay').textContent = rPath || '--';
+        }
+      });
+    });
+  }
+
+  function getReviewPathForDecision(task, decision) {
+    if (!task || !decision) return '';
+    if (decision.startsWith('PICK_ANN_')) {
+      const k = decision.replace('PICK_ANN_', '');
+      return task['ann_' + k + '_path'] || '';
+    }
+    if (decision === 'PICK_AI') return task.ai_path || '';
+    if (decision === 'PICK_HUMAN') return task.human_ref_path || '';
+    return '';
+  }
+
+  function getReviewPathEnForDecision(task, decision) {
+    if (!task || !decision) return '';
+    if (decision.startsWith('PICK_ANN_')) {
+      const k = decision.replace('PICK_ANN_', '');
+      return task['ann_' + k + '_path_en'] || pathToEn(task['ann_' + k + '_path'] || '');
+    }
+    if (decision === 'PICK_AI') return task.ai_path_en || '';
+    if (decision === 'PICK_HUMAN') return pathToEn(task.human_ref_path || '');
+    return '';
+  }
+
+  function pathToEn(zhPath) {
+    if (!zhPath) return '';
+    const node = nodeMap[zhPath];
+    return node ? node.path_en : zhPath;
+  }
+
+  function highlightDisagreement(task, annKeys) {
+    const note = document.getElementById('disagreementNote');
+    if (annKeys.length < 2) { note.style.display = 'none'; return; }
+
+    const paths = annKeys.map(k => (task['ann_' + k + '_path'] || '').split('/'));
+    let firstDisagree = -1;
+    const maxLen = Math.max(...paths.map(p => p.length));
+
+    for (let lvl = 0; lvl < maxLen; lvl++) {
+      const vals = paths.map(p => p[lvl] || '');
+      const unique = new Set(vals.filter(v => v));
+      if (unique.size > 1) {
+        firstDisagree = lvl;
+        break;
+      }
+    }
+
+    if (firstDisagree >= 0) {
+      note.style.display = 'block';
+      note.textContent = 'Disagreement starts at L' + (firstDisagree + 1) + ' level';
+    } else {
+      // Check if paths differ in length
+      const uniquePaths = new Set(annKeys.map(k => task['ann_' + k + '_path'] || ''));
+      if (uniquePaths.size > 1) {
+        note.style.display = 'block';
+        note.textContent = 'Paths differ in depth';
+      } else {
+        note.style.display = 'none';
+      }
+    }
+
+    // Color the ann-rows
+    const rows = document.getElementById('comparisonContent').querySelectorAll('.ann-row');
+    const annPaths = annKeys.map(k => task['ann_' + k + '_path'] || '');
+    const uniqueAnnPaths = new Set(annPaths);
+
+    let idx = 0;
+    for (const k of annKeys) {
+      const path = task['ann_' + k + '_path'] || '';
+      if (rows[idx]) {
+        if (uniqueAnnPaths.size === 1) {
+          rows[idx].classList.add('highlight-agree');
+        } else {
+          rows[idx].classList.add('highlight-disagree');
+        }
+      }
+      idx++;
+    }
+  }
+
+  // ========== TASK LOADING ==========
+  function loadTask(index) {
+    if (!reviewTasks.length) return;
+    if (index < 0) index = 0;
+    if (index >= reviewTasks.length) index = reviewTasks.length - 1;
+    currentIndex = index;
+    currentDecision = '';
+
+    const task = reviewTasks[index];
+    document.getElementById('currentIdx').textContent = index + 1;
+    document.getElementById('totalCount').textContent = reviewTasks.length;
+
+    // Image
+    const img = document.getElementById('taskImage');
+    const placeholder = document.getElementById('imagePlaceholder');
+    if (task.upload_url) {
+      img.src = task.upload_url;
+      img.style.display = 'block';
+      placeholder.style.display = 'none';
+      img.onerror = function() {
+        img.style.display = 'none';
+        placeholder.style.display = 'block';
+        placeholder.textContent = 'Failed to load image';
+      };
+    } else {
+      img.style.display = 'none';
+      placeholder.style.display = 'block';
+      placeholder.textContent = 'No image URL';
+    }
+
+    document.getElementById('taskIdDisplay').textContent = task.task_id || '--';
+    document.getElementById('taskSourceDisplay').textContent = task.source ? ' | source: ' + task.source : '';
+
+    // Build comparison
+    buildComparison(task);
+
+    // Hide selectors
+    document.getElementById('selectorSection').style.display = 'none';
+    document.getElementById('fullPathDisplay').textContent = '--';
+    document.getElementById('noteInput').value = '';
+
+    // Restore saved review
+    const saved = reviews[task.task_id];
+    if (saved) {
+      currentDecision = saved.decision_source;
+      const radios = document.querySelectorAll('input[name="decision"]');
+      for (const r of radios) {
+        if (r.value === saved.decision_source) {
+          r.checked = true;
+          r.parentElement.classList.add('selected');
+          break;
+        }
+      }
+      if (saved.decision_source === 'NEW_PATH') {
+        document.getElementById('selectorSection').style.display = 'flex';
+        resetSelectors();
+        setSelectorsFromPath(saved.review_path);
+      } else {
+        document.getElementById('fullPathDisplay').textContent = saved.review_path || '--';
+      }
+      document.getElementById('noteInput').value = saved.review_note || '';
+    }
+
+    updateStats();
+    updateProgressBar();
+  }
+
+  // ========== REVIEWS ==========
+  function saveReview() {
+    const task = reviewTasks[currentIndex];
+    if (!task) return false;
+    if (!currentDecision) {
+      showToast('Please select a decision');
+      return false;
+    }
+
+    let reviewPath = '';
+    let reviewPathEn = '';
+
+    if (currentDecision === 'NEW_PATH') {
+      const sel = getSelectedPath();
+      reviewPath = sel.path;
+      reviewPathEn = sel.pathEn;
+      if (!reviewPath) {
+        showToast('Please select a path for New Path decision');
+        return false;
+      }
+    } else {
+      reviewPath = getReviewPathForDecision(task, currentDecision);
+      reviewPathEn = getReviewPathEnForDecision(task, currentDecision);
+    }
+
+    // P0-3: Validate review_path is non-empty regardless of decision_source.
+    // A PICK_ANN_x choice may resolve to an empty path (e.g. uncertain annotator).
+    if (!reviewPath) {
+      showToast('Selected path is empty (annotator may be uncertain). Please choose another option or use New Path.');
+      return false;
+    }
+
+    reviews[task.task_id] = {
+      task_id: task.task_id,
+      reviewer_id: reviewerId,
+      review_path: reviewPath,
+      review_path_en: reviewPathEn,
+      decision_source: currentDecision,
+      review_note: document.getElementById('noteInput').value.trim(),
+      timestamp: new Date().toISOString()
+    };
+
+    persistToLocalStorage();
+
+    const count = Object.keys(reviews).length;
+    if (count > 0 && count % 100 === 0) {
+      showToast('You have reviewed ' + count + ' items. Consider exporting a backup!');
+    }
+
+    return true;
+  }
+
+  function persistToLocalStorage() {
+    if (!reviewerId) return;
+    const key = 'review_' + reviewerId;
+    try { localStorage.setItem(key, JSON.stringify(reviews)); } catch (e) {}
+  }
+
+  function loadFromLocalStorage() {
+    if (!reviewerId) return;
+    const key = 'review_' + reviewerId;
+    try {
+      const data = localStorage.getItem(key);
+      if (data) {
+        reviews = JSON.parse(data);
+        showToast('Restored ' + Object.keys(reviews).length + ' saved reviews');
+      } else { reviews = {}; }
+    } catch (e) { reviews = {}; }
+  }
+
+  function updateStats() {
+    const total = reviewTasks.length;
+    const reviewed = Object.keys(reviews).filter(id => reviewTasks.some(t => t.task_id === id)).length;
+    document.getElementById('statsText').innerHTML =
+      'Reviewed: <span class="reviewed">' + reviewed + '</span> | Left: <span class="remaining">' + (total - reviewed) + '</span>';
+  }
+
+  function updateProgressBar() {
+    const total = reviewTasks.length;
+    if (!total) return;
+    const reviewed = Object.keys(reviews).filter(id => reviewTasks.some(t => t.task_id === id)).length;
+    document.getElementById('progressBarFill').style.width = (reviewed / total * 100).toFixed(1) + '%';
+  }
+
+  // ========== EXPORT ==========
+  function exportCSV() {
+    if (!reviewerId) { showToast('Please select a reviewer first'); return; }
+    const taskReviews = reviewTasks.map(t => reviews[t.task_id]).filter(r => r);
+    if (!taskReviews.length) { showToast('No reviews to export'); return; }
+
+    const now = new Date();
+    const ts = now.getFullYear().toString() +
+      String(now.getMonth() + 1).padStart(2, '0') +
+      String(now.getDate()).padStart(2, '0') + '_' +
+      String(now.getHours()).padStart(2, '0') +
+      String(now.getMinutes()).padStart(2, '0') +
+      String(now.getSeconds()).padStart(2, '0');
+
+    const filename = 'review_' + reviewerId + '_' + ts + '.csv';
+    const header = 'task_id,reviewer_id,review_path,review_path_en,decision_source,review_note,timestamp';
+    const rows = taskReviews.map(r => [
+      csvEscape(r.task_id), csvEscape(r.reviewer_id), csvEscape(r.review_path),
+      csvEscape(r.review_path_en), csvEscape(r.decision_source),
+      csvEscape(r.review_note), csvEscape(r.timestamp)
+    ].join(','));
+
+    const bom = '\ufeff';
+    const blob = new Blob([bom + header + '\n' + rows.join('\n') + '\n'], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Exported ' + taskReviews.length + ' reviews: ' + filename);
+  }
+
+  function csvEscape(val) {
+    if (val == null) return '';
+    val = String(val);
+    if (val.includes(',') || val.includes('"') || val.includes('\n'))
+      return '"' + val.replace(/"/g, '""') + '"';
+    return val;
+  }
+
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => { toast.classList.remove('show'); }, 3000);
+  }
+
+  // ========== INIT ==========
+  function init() {
+    const hasTaxonomy = typeof window.TREE_A !== 'undefined' && window.TREE_A;
+    // Try to load REVIEW_TASKS from window variable
+    const hasReviewTasks = typeof window.REVIEW_TASKS !== 'undefined' && window.REVIEW_TASKS;
+
+    if (hasTaxonomy) {
+      taxonomyData = window.TREE_A;
+      buildTreeIndex(taxonomyData);
+    }
+    if (hasReviewTasks) {
+      reviewTasks = parseCSV(window.REVIEW_TASKS);
+    }
+
+    if (!hasTaxonomy || !hasReviewTasks) {
+      showUploadFallback(hasTaxonomy, hasReviewTasks);
+    } else {
+      dataReady = true;
+      populateSelect(document.getElementById('selectL1'), l1Nodes, '-- Select L1 --');
+    }
+
+    setupEventListeners();
+    setupSearch(3);
+    setupSearch(4);
+    setupSearch(5);
+  }
+
+  function showUploadFallback(hasTax, hasReview) {
+    const fallback = document.getElementById('uploadFallback');
+    fallback.style.display = 'flex';
+
+    if (hasTax) {
+      document.getElementById('statusTaxonomy').innerHTML = '<span class="loaded">Loaded (auto)</span>';
+    }
+    if (hasReview) {
+      document.getElementById('statusReviewTasks').innerHTML = '<span class="loaded">Loaded (auto)</span>';
+    }
+
+    document.getElementById('uploadTaxonomy').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        try {
+          const text = ev.target.result;
+          try { taxonomyData = JSON.parse(text); } catch (_) {
+            eval(text);
+            if (window.TREE_A) taxonomyData = window.TREE_A;
+          }
+          if (taxonomyData) {
+            buildTreeIndex(taxonomyData);
+            document.getElementById('statusTaxonomy').innerHTML = '<span class="loaded">Loaded</span>';
+            checkFallbackReady();
+          }
+        } catch (err) {
+          document.getElementById('statusTaxonomy').innerHTML = '<span class="missing">Error: ' + err.message + '</span>';
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    document.getElementById('uploadReviewTasks').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        reviewTasks = parseCSV(ev.target.result);
+        document.getElementById('statusReviewTasks').innerHTML =
+          '<span class="loaded">Loaded ' + reviewTasks.length + ' review tasks</span>';
+        checkFallbackReady();
+      };
+      reader.readAsText(file);
+    });
+
+    document.getElementById('startBtn').addEventListener('click', function() {
+      fallback.style.display = 'none';
+      dataReady = true;
+      populateSelect(document.getElementById('selectL1'), l1Nodes, '-- Select L1 --');
+    });
+  }
+
+  function checkFallbackReady() {
+    document.getElementById('startBtn').disabled = !(taxonomyData && reviewTasks.length > 0);
+  }
+
+  // ========== EVENT LISTENERS ==========
+  function setupEventListeners() {
+    document.getElementById('reviewerSelect').addEventListener('change', function() {
+      reviewerId = this.value;
+      if (reviewerId) {
+        loadFromLocalStorage();
+        if (reviewTasks.length > 0) {
+          let startIdx = 0;
+          for (let i = 0; i < reviewTasks.length; i++) {
+            if (!reviews[reviewTasks[i].task_id]) { startIdx = i; break; }
+          }
+          loadTask(startIdx);
+        }
+      }
+    });
+
+    for (let i = 1; i <= 5; i++) {
+      (function(level) {
+        document.getElementById('selectL' + level).addEventListener('change', function() { onLevelChange(level); });
+        document.getElementById('selectL' + level).addEventListener('focus', function() { setActiveLevel(level); });
+      })(i);
+    }
+
+    document.getElementById('btnPrev').addEventListener('click', function() { goTo(currentIndex - 1); });
+    document.getElementById('btnConfirm').addEventListener('click', doConfirm);
+    document.getElementById('btnExport').addEventListener('click', exportCSV);
+
+    document.addEventListener('keydown', function(e) {
+      const tag = e.target.tagName.toLowerCase();
+      if (tag === 'input' || tag === 'textarea') return;
+      if (e.key === 'Enter') { e.preventDefault(); doConfirm(); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(currentIndex - 1); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); goTo(currentIndex + 1); }
+    });
+  }
+
+  function doConfirm() {
+    if (!reviewerId) { showToast('Please select a reviewer'); return; }
+    if (!reviewTasks.length) return;
+    if (saveReview()) {
+      if (currentIndex < reviewTasks.length - 1) { loadTask(currentIndex + 1); }
+      else { showToast('All tasks reviewed! Please export your results.'); }
+    }
+  }
+
+  function goTo(index) {
+    if (index < 0 || index >= reviewTasks.length) return;
+    loadTask(index);
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>

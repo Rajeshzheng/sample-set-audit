@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sample Set Audit System</title>
+<style>
+  body { font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: #e0e0e0; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+  .container { background: #16213e; border-radius: 12px; padding: 40px 50px; max-width: 600px; width: 90%; }
+  h1 { color: #4fc3f7; margin-bottom: 8px; }
+  p { color: #8899aa; margin-bottom: 30px; }
+  .tools { display: flex; flex-direction: column; gap: 16px; }
+  a.tool { display: block; padding: 20px 24px; background: #1c2a4a; border: 1px solid #2a3a5e; border-radius: 8px; text-decoration: none; color: #e0e0e0; transition: all 0.2s; }
+  a.tool:hover { background: #243656; border-color: #4fc3f7; }
+  a.tool .name { font-size: 18px; font-weight: 600; color: #4fc3f7; }
+  a.tool .desc { font-size: 14px; color: #8899aa; margin-top: 4px; }
+  .footer { margin-top: 30px; text-align: center; font-size: 12px; color: #556677; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Sample Set Audit System</h1>
+  <p>Image annotation, review, and arbitration tools</p>
+  <div class="tools">
+    <a class="tool" href="tools/annotator_tool.html">
+      <div class="name">Annotator Tool</div>
+      <div class="desc">For annotators (A-E) &mdash; Label images with the V2 taxonomy tree (English UI)</div>
+    </a>
+    <a class="tool" href="tools/reviewer_tool.html">
+      <div class="name">Reviewer Tool</div>
+      <div class="desc">For reviewers (R1/R2) &mdash; Review disagreed annotations (English UI)</div>
+    </a>
+    <a class="tool" href="tools/arbitrator_tool.html">
+      <div class="name">Arbitrator Tool / &#20210;&#35009;&#24037;&#20855;</div>
+      <div class="desc">For arbitrators &mdash; Final arbitration on disputed tasks (Chinese UI / &#20013;&#25991;&#30028;&#38754;)</div>
+    </a>
+  </div>
+  <div class="footer">Taxonomy Viewer: <a href="https://rajeshzheng.github.io/ls-taxonomy-v2_202602/" style="color:#4fc3f7;">ls-taxonomy-v2_202602</a></div>
+</div>
+</body>
+</html>
