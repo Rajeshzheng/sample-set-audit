@@ -396,6 +396,7 @@ body {
   padding: 12px 16px;
   font-size: 13px;
   min-height: 44px;
+  flex-shrink: 0;
 }
 
 .full-path-display .label {
@@ -413,6 +414,8 @@ body {
   font-family: 'JetBrains Mono', monospace;
   font-size: 13px;
   line-height: 1.5;
+  white-space: normal;
+  overflow-wrap: anywhere;
   word-break: break-word;
   padding: 2px 0;
 }
@@ -1750,7 +1753,7 @@ body {
 
   function persistToLocalStorage() {
     if (!annotatorId || !batchId) return;
-    const key = 'annotation_' + annotatorId + '_batch' + batchId;
+    const key = 'ssa_annotation_' + annotatorId + '_batch' + batchId;
     try {
       localStorage.setItem(key, JSON.stringify(annotations));
     } catch (e) {
@@ -1760,7 +1763,7 @@ body {
 
   function loadFromLocalStorage() {
     if (!annotatorId || !batchId) return;
-    const key = 'annotation_' + annotatorId + '_batch' + batchId;
+    const key = 'ssa_annotation_' + annotatorId + '_batch' + batchId;
     try {
       const data = localStorage.getItem(key);
       if (data) {
@@ -1918,7 +1921,7 @@ body {
 
       // Save identity to localStorage
       try {
-        localStorage.setItem('annotator_identity', JSON.stringify({ name: name, group: group }));
+        localStorage.setItem('ssa_annotator_identity', JSON.stringify({ name: name, group: group }));
       } catch (e) {
         console.warn('Failed to save identity:', e);
       }
@@ -1930,7 +1933,7 @@ body {
 
     document.getElementById('switchUserBtn').addEventListener('click', function() {
       try {
-        localStorage.removeItem('annotator_identity');
+        localStorage.removeItem('ssa_annotator_identity');
       } catch (e) {}
       annotatorId = '';
       annotatorName = '';
@@ -1948,7 +1951,7 @@ body {
 
   function loadSavedIdentity() {
     try {
-      const saved = localStorage.getItem('annotator_identity');
+      const saved = localStorage.getItem('ssa_annotator_identity');
       if (saved) {
         const identity = JSON.parse(saved);
         if (identity.name && identity.group) {
@@ -2021,7 +2024,7 @@ body {
           annotatorName = name;
           annotatorId = group;
           try {
-            localStorage.setItem('annotator_identity', JSON.stringify({ name: name, group: group }));
+            localStorage.setItem('ssa_annotator_identity', JSON.stringify({ name: name, group: group }));
           } catch (e) {}
           hideLoginModal();
           updateAnnotatorDisplay();

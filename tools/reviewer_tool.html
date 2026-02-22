@@ -1265,13 +1265,13 @@ body {
 
   function persistToLocalStorage() {
     if (!reviewerId) return;
-    const key = 'review_' + reviewerId;
+    const key = 'ssa_review_' + reviewerId;
     try { localStorage.setItem(key, JSON.stringify(reviews)); } catch (e) {}
   }
 
   function loadFromLocalStorage() {
     if (!reviewerId) return;
-    const key = 'review_' + reviewerId;
+    const key = 'ssa_review_' + reviewerId;
     try {
       const data = localStorage.getItem(key);
       if (data) {
@@ -1472,7 +1472,7 @@ body {
 
     // Save identity to localStorage
     try {
-      localStorage.setItem('reviewer_identity', JSON.stringify({ name: name, role: role }));
+      localStorage.setItem('ssa_reviewer_identity', JSON.stringify({ name: name, role: role }));
     } catch (e) {}
 
     // Hide login modal
@@ -1495,7 +1495,7 @@ body {
 
   function loadSavedIdentity() {
     try {
-      const saved = localStorage.getItem('reviewer_identity');
+      const saved = localStorage.getItem('ssa_reviewer_identity');
       if (saved) {
         const identity = JSON.parse(saved);
         if (identity.name && identity.role) {
@@ -1512,7 +1512,7 @@ body {
     document.getElementById('switchUserLink').addEventListener('click', function(e) {
       e.preventDefault();
       // Clear saved identity
-      try { localStorage.removeItem('reviewer_identity'); } catch (e) {}
+      try { localStorage.removeItem('ssa_reviewer_identity'); } catch (e) {}
       // Reset state
       reviewerId = '';
       reviewerName = '';

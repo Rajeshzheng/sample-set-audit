@@ -1209,12 +1209,12 @@ body {
   }
 
   function persistToLocalStorage() {
-    const key = 'arbitration_arb1';
+    const key = 'ssa_arbitration_arb1';
     try { localStorage.setItem(key, JSON.stringify(arbitrations)); } catch (e) {}
   }
 
   function loadFromLocalStorage() {
-    const key = 'arbitration_arb1';
+    const key = 'ssa_arbitration_arb1';
     try {
       const data = localStorage.getItem(key);
       if (data) {
@@ -1286,7 +1286,7 @@ body {
   // ========== LOGIN ==========
   function checkLoginAndInit() {
     try {
-      const stored = localStorage.getItem('arbitrator_identity');
+      const stored = localStorage.getItem('ssa_arbitrator_identity');
       if (stored) {
         const identity = JSON.parse(stored);
         if (identity && identity.name) {
@@ -1329,7 +1329,7 @@ body {
 
     arbitratorName = name;
     try {
-      localStorage.setItem('arbitrator_identity', JSON.stringify({ name: name }));
+      localStorage.setItem('ssa_arbitrator_identity', JSON.stringify({ name: name }));
     } catch (e) {}
 
     applyIdentity();
@@ -1342,7 +1342,7 @@ body {
   }
 
   function switchUser() {
-    try { localStorage.removeItem('arbitrator_identity'); } catch (e) {}
+    try { localStorage.removeItem('ssa_arbitrator_identity'); } catch (e) {}
     arbitratorName = '';
     showLoginModal();
   }
