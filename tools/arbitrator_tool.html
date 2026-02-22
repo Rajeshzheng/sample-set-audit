@@ -105,6 +105,7 @@ body {
 
 /* ===== IMAGE SECTION ===== */
 .image-section {
+  position: relative;
   display: flex; align-items: center; justify-content: center;
   background: #08080c;
   border-radius: var(--radius-md);
@@ -117,6 +118,17 @@ body {
   color: var(--text-dim); font-size: 14px; text-align: center; padding: 40px;
   font-family: 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif;
 }
+.image-loading {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  display: none; flex-direction: column; align-items: center; gap: 12px; z-index: 2;
+}
+.image-loading.active { display: flex; }
+.spinner {
+  width: 36px; height: 36px; border: 3px solid var(--surface3);
+  border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.image-loading span { font-size: 12px; color: var(--text-dim); }
 
 /* ===== TASK INFO ===== */
 .task-info {
@@ -612,6 +624,7 @@ body {
   <div class="left-panel">
     <div class="image-section" id="imageSection">
       <div class="placeholder" id="imagePlaceholder">加载仲裁数据后开始</div>
+      <div class="image-loading" id="imageLoading"><div class="spinner"></div><span>加载中...</span></div>
       <img id="taskImage" style="display:none;" alt="Task image">
     </div>
     <div class="task-info">
@@ -1127,10 +1140,16 @@ body {
 
     const img = document.getElementById('taskImage');
     const placeholder = document.getElementById('imagePlaceholder');
+    const loading = document.getElementById('imageLoading');
     if (task.upload_url) {
-      img.src = task.upload_url; img.style.display = 'block'; placeholder.style.display = 'none';
-      img.onerror = function() { img.style.display = 'none'; placeholder.style.display = 'block'; placeholder.textContent = '图片加载失败'; };
+      img.style.display = 'none';
+      placeholder.style.display = 'none';
+      loading.classList.add('active');
+      img.onload = function() { loading.classList.remove('active'); img.style.display = 'block'; };
+      img.onerror = function() { loading.classList.remove('active'); img.style.display = 'none'; placeholder.style.display = 'block'; placeholder.textContent = '图片加载失败'; };
+      img.src = task.upload_url;
     } else {
+      loading.classList.remove('active');
       img.style.display = 'none'; placeholder.style.display = 'block'; placeholder.textContent = '无图片链接';
     }
 

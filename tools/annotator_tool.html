@@ -162,6 +162,7 @@ body {
 
 /* ===== IMAGE CONTAINER ===== */
 .image-container {
+  position: relative;
   max-width: 100%;
   max-height: calc(100vh - 250px);
   display: flex;
@@ -188,6 +189,41 @@ body {
   font-size: 14px;
   text-align: center;
   padding: 40px;
+}
+
+/* Image loading spinner */
+.image-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  z-index: 2;
+}
+
+.image-loading.active {
+  display: flex;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--surface3);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.image-loading span {
+  font-size: 12px;
+  color: var(--text-dim);
 }
 
 /* ===== TASK INFO ===== */
@@ -1122,6 +1158,7 @@ body {
   <div class="left-panel">
     <div class="image-container" id="imageContainer">
       <div class="placeholder" id="imagePlaceholder">Select an annotator and batch to begin</div>
+      <div class="image-loading" id="imageLoading"><div class="spinner"></div><span>Loading...</span></div>
       <img id="taskImage" style="display:none;" alt="Task image">
     </div>
     <div class="task-info" id="taskInfo">
@@ -1612,16 +1649,24 @@ body {
     // Image
     const img = document.getElementById('taskImage');
     const placeholder = document.getElementById('imagePlaceholder');
+    const loading = document.getElementById('imageLoading');
     if (task.upload_url) {
-      img.src = task.upload_url;
-      img.style.display = 'block';
+      img.style.display = 'none';
       placeholder.style.display = 'none';
+      loading.classList.add('active');
+      img.onload = function() {
+        loading.classList.remove('active');
+        img.style.display = 'block';
+      };
       img.onerror = function() {
+        loading.classList.remove('active');
         img.style.display = 'none';
         placeholder.style.display = 'block';
         placeholder.textContent = 'Failed to load image: ' + task.upload_url;
       };
+      img.src = task.upload_url;
     } else {
+      loading.classList.remove('active');
       img.style.display = 'none';
       placeholder.style.display = 'block';
       placeholder.textContent = 'No image URL';

@@ -656,9 +656,8 @@ kbd {
     <button class="tab-btn active" onclick="switchTab('annotator')">
       <span class="icon">📝</span> Annotator Guide
     </button>
-    <button class="tab-btn locked" onclick="switchTab('reviewer')" id="reviewerTabBtn">
+    <button class="tab-btn" onclick="switchTab('reviewer')" id="reviewerTabBtn">
       <span class="icon">🔍</span> Reviewer Guide
-      <!-- Remove "locked" class and add "active" when Phase 2 starts -->
     </button>
   </div>
 
@@ -851,25 +850,14 @@ kbd {
   <div class="tab-content" id="tab-reviewer">
 
     <!--
-      ╔══════════════════════════════════════════════════════════════╗
-      ║  PHASE CONTROL:                                            ║
-      ║  When Phase 2 starts:                                      ║
-      ║  1. Remove class="locked" from #reviewerTabBtn             ║
-      ║  2. Remove the .locked-panel div below                     ║
-      ║  3. Uncomment the reviewer content sections below          ║
-      ║  4. Update the phase-badge text to "Phase 2"               ║
-      ╚══════════════════════════════════════════════════════════════╝
+      PHASE CONTROL: When Phase 2 starts, remove the note-box below
+      and update the phase-badge text in the header.
     -->
 
-    <div class="locked-panel">
-      <div class="lock-icon">🔒</div>
-      <h3>Review Phase Has Not Started</h3>
-      <p>This section will be unlocked when Phase 1 (Annotation) is complete and review tasks are prepared by the Admin.</p>
-      <p style="margin-top:12px;">You will be notified when it's time to start reviewing.</p>
+    <div class="note-box" style="margin-bottom:16px; text-align:center;">
+      Phase 2 has not started yet. Read the guide below so you're prepared when it begins.
     </div>
 
-    <!-- REVIEWER CONTENT (uncomment when Phase 2 starts) -->
-    <!--
     <div class="content-block">
       <div class="section-title"><span class="num">1</span> Your Role</div>
       <div class="team-grid">
@@ -957,7 +945,6 @@ kbd {
         <a class="tool-link secondary" href="https://rajeshzheng.github.io/ls-taxonomy-v2_202602/" target="_blank">🌳 Taxonomy Viewer</a>
       </div>
     </div>
-    -->
 
   </div>
   <!-- END REVIEWER TAB -->
@@ -977,12 +964,6 @@ kbd {
 
 <script>
 function switchTab(tab) {
-  // If locked, do nothing
-  if (tab === 'reviewer') {
-    const btn = document.getElementById('reviewerTabBtn');
-    if (btn.classList.contains('locked')) return;
-  }
-
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
 
