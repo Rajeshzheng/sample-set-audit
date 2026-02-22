@@ -258,9 +258,138 @@ body {
 .toast.show { opacity: 1; transform: translateY(0); }
 
 .level-row.active-level .level-label { color: var(--yellow); }
+
+/* Login modal */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 500;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.active { display: flex; }
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px;
+  width: 400px;
+  max-width: 90%;
+}
+
+.modal h3 {
+  color: var(--accent);
+  margin-bottom: 12px;
+  font-size: 16px;
+}
+
+.modal .modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.modal .modal-field label {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.modal .modal-field input[type="text"] {
+  width: 100%;
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 8px 10px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.modal .modal-field input[type="text"]:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.modal .modal-field select {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 8px 10px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.modal .modal-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  justify-content: flex-end;
+}
+
+.modal .modal-actions button {
+  padding: 8px 24px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.modal .modal-actions .btn-start {
+  background: var(--accent);
+  color: #000;
+  border-color: var(--accent);
+}
+
+.modal .modal-actions .btn-start:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+#reviewerDisplay {
+  font-size: 13px;
+  color: var(--text);
+  font-weight: 600;
+}
+
+#switchUserLink {
+  font-size: 12px;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: none;
+  margin-left: 4px;
+}
+
+#switchUserLink:hover {
+  text-decoration: underline;
+}
 </style>
 </head>
 <body>
+
+<!-- Login Modal -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal">
+    <h3>Welcome to Review Tool</h3>
+    <div class="modal-field">
+      <label>Your Name</label>
+      <input type="text" id="loginNameInput" placeholder="Enter your name..." required>
+    </div>
+    <div class="modal-field">
+      <label>Reviewer Role</label>
+      <select id="loginRoleSelect">
+        <option value="R1">R1</option>
+        <option value="R2">R2</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-start" id="loginStartBtn" disabled>Start</button>
+    </div>
+  </div>
+</div>
 
 <!-- Upload Fallback -->
 <div class="upload-fallback" id="uploadFallback" style="display:none;">
@@ -286,11 +415,8 @@ body {
   <span class="title">Review Tool v1.0</span>
   <div class="controls">
     <label>Reviewer:</label>
-    <select id="reviewerSelect">
-      <option value="">-- Select --</option>
-      <option value="R1">R1</option>
-      <option value="R2">R2</option>
-    </select>
+    <span id="reviewerDisplay">--</span>
+    <a id="switchUserLink" style="display:none;">Switch User</a>
     <span class="progress-text">
       <span id="currentIdx">0</span> / <span id="totalCount">0</span>
     </span>
@@ -303,7 +429,7 @@ body {
 <div class="main-content" id="mainContent">
   <div class="left-panel">
     <div class="image-container" id="imageContainer">
-      <div class="placeholder" id="imagePlaceholder">Select a reviewer to begin</div>
+      <div class="placeholder" id="imagePlaceholder">Log in to begin</div>
       <img id="taskImage" style="display:none;" alt="Task image">
     </div>
     <div class="task-info" id="taskInfo">
@@ -405,6 +531,7 @@ body {
   let currentIndex = 0;
   let reviews = {};
   let reviewerId = '';
+  let reviewerName = '';
   let dataReady = false;
   let currentDecision = '';
   let activeLevel = null;
@@ -932,7 +1059,7 @@ body {
 
     reviews[task.task_id] = {
       task_id: task.task_id,
-      reviewer_id: reviewerId,
+      reviewer_id: reviewerName + '(' + reviewerId + ')',
       review_path: reviewPath,
       review_path_en: reviewPathEn,
       decision_source: currentDecision,
@@ -984,7 +1111,7 @@ body {
 
   // ========== EXPORT ==========
   function exportCSV() {
-    if (!reviewerId) { showToast('Please select a reviewer first'); return; }
+    if (!reviewerId) { showToast('Please log in first'); return; }
     const taskReviews = reviewTasks.map(t => reviews[t.task_id]).filter(r => r);
     if (!taskReviews.length) { showToast('No reviews to export'); return; }
 
@@ -996,7 +1123,7 @@ body {
       String(now.getMinutes()).padStart(2, '0') +
       String(now.getSeconds()).padStart(2, '0');
 
-    const filename = 'review_' + reviewerId + '_' + ts + '.csv';
+    const filename = 'review_' + reviewerName + '_' + reviewerId + '_' + ts + '.csv';
     const header = 'task_id,reviewer_id,review_path,review_path_en,decision_source,review_note,timestamp';
     const rows = taskReviews.map(r => [
       csvEscape(r.task_id), csvEscape(r.reviewer_id), csvEscape(r.review_path),
@@ -1054,6 +1181,16 @@ body {
     setupSearch(3);
     setupSearch(4);
     setupSearch(5);
+
+    // Check for saved identity
+    const savedIdentity = loadSavedIdentity();
+    if (savedIdentity) {
+      // Auto-login with saved identity (skip modal)
+      completeLogin(savedIdentity.name, savedIdentity.role);
+    } else {
+      // Show login modal on first visit
+      showLoginModal();
+    }
   }
 
   function showUploadFallback(hasTax, hasReview) {
@@ -1114,20 +1251,88 @@ body {
     document.getElementById('startBtn').disabled = !(taxonomyData && reviewTasks.length > 0);
   }
 
-  // ========== EVENT LISTENERS ==========
-  function setupEventListeners() {
-    document.getElementById('reviewerSelect').addEventListener('change', function() {
-      reviewerId = this.value;
-      if (reviewerId) {
-        loadFromLocalStorage();
-        if (reviewTasks.length > 0) {
-          let startIdx = 0;
-          for (let i = 0; i < reviewTasks.length; i++) {
-            if (!reviews[reviewTasks[i].task_id]) { startIdx = i; break; }
-          }
-          loadTask(startIdx);
+  // ========== LOGIN / IDENTITY ==========
+  function showLoginModal() {
+    const modal = document.getElementById('loginModal');
+    const nameInput = document.getElementById('loginNameInput');
+    const roleSelect = document.getElementById('loginRoleSelect');
+    const startBtn = document.getElementById('loginStartBtn');
+
+    modal.classList.add('active');
+    nameInput.value = '';
+    startBtn.disabled = true;
+
+    nameInput.addEventListener('input', function() {
+      startBtn.disabled = !this.value.trim();
+    });
+
+    nameInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && this.value.trim()) {
+        e.preventDefault();
+        completeLogin(this.value.trim(), roleSelect.value);
+      }
+    });
+
+    startBtn.addEventListener('click', function() {
+      const name = nameInput.value.trim();
+      if (!name) return;
+      completeLogin(name, roleSelect.value);
+    });
+  }
+
+  function completeLogin(name, role) {
+    reviewerName = name;
+    reviewerId = role;
+
+    // Save identity to localStorage
+    try {
+      localStorage.setItem('reviewer_identity', JSON.stringify({ name: name, role: role }));
+    } catch (e) {}
+
+    // Hide login modal
+    document.getElementById('loginModal').classList.remove('active');
+
+    // Update display
+    document.getElementById('reviewerDisplay').textContent = reviewerName + ' (' + reviewerId + ')';
+    document.getElementById('switchUserLink').style.display = 'inline';
+
+    // Trigger the same flow as the old reviewerSelect change handler
+    loadFromLocalStorage();
+    if (reviewTasks.length > 0) {
+      let startIdx = 0;
+      for (let i = 0; i < reviewTasks.length; i++) {
+        if (!reviews[reviewTasks[i].task_id]) { startIdx = i; break; }
+      }
+      loadTask(startIdx);
+    }
+  }
+
+  function loadSavedIdentity() {
+    try {
+      const saved = localStorage.getItem('reviewer_identity');
+      if (saved) {
+        const identity = JSON.parse(saved);
+        if (identity.name && identity.role) {
+          return identity;
         }
       }
+    } catch (e) {}
+    return null;
+  }
+
+  // ========== EVENT LISTENERS ==========
+  function setupEventListeners() {
+    // Switch User link
+    document.getElementById('switchUserLink').addEventListener('click', function(e) {
+      e.preventDefault();
+      // Clear saved identity
+      try { localStorage.removeItem('reviewer_identity'); } catch (e) {}
+      // Reset state
+      reviewerId = '';
+      reviewerName = '';
+      document.getElementById('reviewerDisplay').textContent = '--';
+      this.style.display = 'none';
+      showLoginModal();
     });
 
     for (let i = 1; i <= 5; i++) {
@@ -1151,7 +1356,7 @@ body {
   }
 
   function doConfirm() {
-    if (!reviewerId) { showToast('Please select a reviewer'); return; }
+    if (!reviewerId) { showToast('Please log in first'); return; }
     if (!reviewTasks.length) return;
     if (saveReview()) {
       if (currentIndex < reviewTasks.length - 1) { loadTask(currentIndex + 1); }

@@ -706,9 +706,143 @@ body {
   opacity: 1;
   transform: translateY(0);
 }
+
+/* ===== LOGIN MODAL ===== */
+.login-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--bg);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 36px 40px;
+  width: 420px;
+  max-width: 90%;
+  text-align: center;
+}
+
+.login-modal h2 {
+  color: var(--accent);
+  font-size: 20px;
+  margin-bottom: 24px;
+  font-weight: 700;
+}
+
+.login-modal .login-field {
+  text-align: left;
+  margin-bottom: 16px;
+}
+
+.login-modal .login-field label {
+  display: block;
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.login-modal .login-field input,
+.login-modal .login-field select {
+  width: 100%;
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.login-modal .login-field input:focus,
+.login-modal .login-field select:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.login-modal .login-note {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 20px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.login-modal .login-start-btn {
+  background: var(--accent);
+  color: #000;
+  border: none;
+  padding: 12px 40px;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+  width: 100%;
+}
+
+.login-modal .login-start-btn:hover {
+  background: var(--accent-hover);
+}
+
+.login-modal .login-start-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Switch User button in top bar */
+.switch-user-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.switch-user-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+#annotatorDisplay {
+  font-size: 13px;
+  color: var(--accent);
+  font-weight: 600;
+}
 </style>
 </head>
 <body>
+
+<!-- Login Modal -->
+<div class="login-overlay" id="loginOverlay" style="display:none;">
+  <div class="login-modal">
+    <h2>Welcome to Image Annotation Tool</h2>
+    <div class="login-field">
+      <label for="loginName">Your Name</label>
+      <input type="text" id="loginName" placeholder="Enter your name..." required>
+    </div>
+    <div class="login-field">
+      <label for="loginGroup">Annotator Group</label>
+      <select id="loginGroup">
+        <option value="A">A</option>
+        <option value="B">B</option>
+        <option value="C">C</option>
+        <option value="D">D</option>
+        <option value="E">E</option>
+      </select>
+    </div>
+    <div class="login-note">Your group determines which images are assigned to you.</div>
+    <button class="login-start-btn" id="loginStartBtn" disabled>Start</button>
+  </div>
+</div>
 
 <!-- Upload Fallback -->
 <div class="upload-fallback" id="uploadFallback" style="display:none;">
@@ -745,14 +879,8 @@ body {
   <span class="title">Image Annotation Tool v1.0</span>
   <div class="controls">
     <label>Annotator:</label>
-    <select id="annotatorSelect">
-      <option value="">-- Select --</option>
-      <option value="A">A</option>
-      <option value="B">B</option>
-      <option value="C">C</option>
-      <option value="D">D</option>
-      <option value="E">E</option>
-    </select>
+    <span id="annotatorDisplay">--</span>
+    <button class="switch-user-btn" id="switchUserBtn">Switch User</button>
     <label>Batch:</label>
     <select id="batchSelect">
       <option value="780">780</option>
@@ -916,6 +1044,7 @@ body {
   let currentIndex = 0;
   let annotations = {};
   let annotatorId = '';
+  let annotatorName = '';
   let batchId = '780';
   let startTime = 0;
   let activeLevel = null;
@@ -1352,7 +1481,7 @@ body {
       }
       annotations[task.task_id] = {
         task_id: task.task_id,
-        annotator_id: annotatorId,
+        annotator_id: annotatorName + '(' + annotatorId + ')',
         label_L1: levels.L1 || '',
         label_L2: levels.L2 || '',
         label_L3: levels.L3 || '',
@@ -1374,7 +1503,7 @@ body {
       const aiAction = determineAiAction(path, task.ai_path || '');
       annotations[task.task_id] = {
         task_id: task.task_id,
-        annotator_id: annotatorId,
+        annotator_id: annotatorName + '(' + annotatorId + ')',
         label_L1: levels.L1 || '',
         label_L2: levels.L2 || '',
         label_L3: levels.L3 || '',
@@ -1455,8 +1584,8 @@ body {
 
   // ========== EXPORT ==========
   function exportCSV() {
-    if (!annotatorId) {
-      showToast('Please select an annotator first');
+    if (!annotatorId || !annotatorName) {
+      showToast('Please log in first');
       return;
     }
 
@@ -1477,7 +1606,7 @@ body {
       String(now.getMinutes()).padStart(2, '0') +
       String(now.getSeconds()).padStart(2, '0');
 
-    const filename = 'annotation_' + annotatorId + '_batch' + batchId + '_' + ts + '.csv';
+    const filename = 'annotation_' + annotatorName + '_' + annotatorId + '_batch' + batchId + '_' + ts + '.csv';
 
     const header = 'task_id,annotator_id,label_L1,label_L2,label_L3,label_L4,label_L5,label_path,label_path_en,ai_action,is_uncertain,uncertain_reason,timestamp,duration_ms';
     const rows = taskAnnotations.map(a => {
@@ -1532,6 +1661,94 @@ body {
     setTimeout(() => { toast.classList.remove('show'); }, 3000);
   }
 
+  // ========== LOGIN MODAL ==========
+  function showLoginModal() {
+    document.getElementById('loginOverlay').style.display = 'flex';
+    document.getElementById('loginName').value = '';
+    document.getElementById('loginGroup').value = 'A';
+    document.getElementById('loginStartBtn').disabled = true;
+    document.getElementById('loginName').focus();
+  }
+
+  function hideLoginModal() {
+    document.getElementById('loginOverlay').style.display = 'none';
+  }
+
+  function setupLoginListeners() {
+    const nameInput = document.getElementById('loginName');
+    const startBtn = document.getElementById('loginStartBtn');
+
+    nameInput.addEventListener('input', function() {
+      startBtn.disabled = !this.value.trim();
+    });
+
+    nameInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && this.value.trim()) {
+        e.preventDefault();
+        startBtn.click();
+      }
+    });
+
+    startBtn.addEventListener('click', function() {
+      const name = document.getElementById('loginName').value.trim();
+      const group = document.getElementById('loginGroup').value;
+      if (!name) return;
+
+      annotatorName = name;
+      annotatorId = group;
+
+      // Save identity to localStorage
+      try {
+        localStorage.setItem('annotator_identity', JSON.stringify({ name: name, group: group }));
+      } catch (e) {
+        console.warn('Failed to save identity:', e);
+      }
+
+      hideLoginModal();
+      updateAnnotatorDisplay();
+      onIdentityReady();
+    });
+
+    document.getElementById('switchUserBtn').addEventListener('click', function() {
+      try {
+        localStorage.removeItem('annotator_identity');
+      } catch (e) {}
+      annotatorId = '';
+      annotatorName = '';
+      annotations = {};
+      currentTasks = [];
+      currentIndex = 0;
+      document.getElementById('annotatorDisplay').textContent = '--';
+      showLoginModal();
+    });
+  }
+
+  function updateAnnotatorDisplay() {
+    document.getElementById('annotatorDisplay').textContent = annotatorName + ' (' + annotatorId + ')';
+  }
+
+  function loadSavedIdentity() {
+    try {
+      const saved = localStorage.getItem('annotator_identity');
+      if (saved) {
+        const identity = JSON.parse(saved);
+        if (identity.name && identity.group) {
+          annotatorName = identity.name;
+          annotatorId = identity.group;
+          return true;
+        }
+      }
+    } catch (e) {}
+    return false;
+  }
+
+  function onIdentityReady() {
+    if (dataReady && annotatorId) {
+      loadFromLocalStorage();
+      filterAndLoadTasks();
+    }
+  }
+
   // ========== INIT ==========
   function init() {
     const hasTaxonomy = typeof window.TREE_A !== 'undefined' && window.TREE_A;
@@ -1553,17 +1770,58 @@ body {
       manifestData = parseCSV(window.ASSIGNMENT_MANIFEST);
     }
 
-    if (!hasTaxonomy || (!hasTasks780 && !hasTasks1000)) {
-      showUploadFallback(hasTaxonomy, hasTasks780, hasTasks1000, hasManifest);
-    } else {
-      dataReady = true;
-      populateSelect(document.getElementById('selectL1'), l1Nodes, '-- Select L1 --');
-    }
-
+    setupLoginListeners();
     setupEventListeners();
     setupSearch(3);
     setupSearch(4);
     setupSearch(5);
+
+    // Check for saved identity
+    const hasIdentity = loadSavedIdentity();
+
+    if (!hasTaxonomy || (!hasTasks780 && !hasTasks1000)) {
+      // Need upload fallback - but check identity first
+      if (!hasIdentity) {
+        // Show login modal first; on login, check data and show upload fallback if needed
+        showLoginModal();
+        // Override the login start to chain into upload fallback check
+        const origStartClick = document.getElementById('loginStartBtn').onclick;
+        // The listener is already set up - after login, onIdentityReady checks dataReady
+        // We just need to also show upload fallback after login if data isn't ready
+        const loginStartBtn = document.getElementById('loginStartBtn');
+        // Remove existing listener and replace
+        const newLoginStartBtn = loginStartBtn.cloneNode(true);
+        loginStartBtn.parentNode.replaceChild(newLoginStartBtn, loginStartBtn);
+        document.getElementById('loginName').addEventListener('input', function() {
+          newLoginStartBtn.disabled = !this.value.trim();
+        });
+        newLoginStartBtn.addEventListener('click', function() {
+          const name = document.getElementById('loginName').value.trim();
+          const group = document.getElementById('loginGroup').value;
+          if (!name) return;
+          annotatorName = name;
+          annotatorId = group;
+          try {
+            localStorage.setItem('annotator_identity', JSON.stringify({ name: name, group: group }));
+          } catch (e) {}
+          hideLoginModal();
+          updateAnnotatorDisplay();
+          showUploadFallback(hasTaxonomy, hasTasks780, hasTasks1000, hasManifest);
+        });
+      } else {
+        updateAnnotatorDisplay();
+        showUploadFallback(hasTaxonomy, hasTasks780, hasTasks1000, hasManifest);
+      }
+    } else {
+      dataReady = true;
+      populateSelect(document.getElementById('selectL1'), l1Nodes, '-- Select L1 --');
+      if (!hasIdentity) {
+        showLoginModal();
+      } else {
+        updateAnnotatorDisplay();
+        onIdentityReady();
+      }
+    }
   }
 
   function showUploadFallback(hasTax, has780, has1000, hasManifest) {
@@ -1654,6 +1912,7 @@ body {
       fallback.style.display = 'none';
       dataReady = true;
       populateSelect(document.getElementById('selectL1'), l1Nodes, '-- Select L1 --');
+      onIdentityReady();
     });
   }
 
@@ -1664,15 +1923,6 @@ body {
 
   // ========== EVENT LISTENERS ==========
   function setupEventListeners() {
-    // Annotator select
-    document.getElementById('annotatorSelect').addEventListener('change', function() {
-      annotatorId = this.value;
-      if (annotatorId) {
-        loadFromLocalStorage();
-        filterAndLoadTasks();
-      }
-    });
-
     // Batch select
     document.getElementById('batchSelect').addEventListener('change', function() {
       batchId = this.value;
@@ -1782,8 +2032,8 @@ body {
   }
 
   function doConfirm() {
-    if (!annotatorId) {
-      showToast('Please select an annotator');
+    if (!annotatorId || !annotatorName) {
+      showToast('Please log in first');
       return;
     }
     if (!currentTasks.length) return;

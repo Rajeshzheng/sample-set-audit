@@ -247,9 +247,72 @@ body {
 .toast.show { opacity: 1; transform: translateY(0); }
 
 .level-row.active-level .level-label { color: var(--yellow); }
+
+/* ===== LOGIN MODAL ===== */
+.login-modal {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(10, 10, 20, 0.92);
+  z-index: 2000; display: flex; align-items: center; justify-content: center;
+}
+.login-modal .login-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  padding: 40px 36px; width: 380px; max-width: 90vw; text-align: center;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.login-modal .login-card h2 {
+  color: var(--accent); font-size: 20px; font-weight: 700; margin-bottom: 8px;
+  font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif;
+}
+.login-modal .login-card .login-subtitle {
+  color: var(--text-dim); font-size: 13px; margin-bottom: 24px;
+}
+.login-modal .login-card .login-field {
+  display: flex; flex-direction: column; gap: 6px; text-align: left; margin-bottom: 20px;
+}
+.login-modal .login-card .login-field label {
+  font-size: 13px; color: var(--text-dim); font-family: 'Microsoft YaHei', sans-serif;
+}
+.login-modal .login-card .login-field input {
+  width: 100%; background: var(--surface2); color: var(--text); border: 1px solid var(--border);
+  padding: 10px 14px; border-radius: 6px; font-size: 14px;
+  font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif;
+  outline: none; transition: border-color 0.2s;
+}
+.login-modal .login-card .login-field input:focus { border-color: var(--accent); }
+.login-modal .login-card .login-btn {
+  width: 100%; padding: 10px 0; background: var(--accent); color: #000; border: none;
+  border-radius: 6px; font-size: 15px; font-weight: 700; cursor: pointer;
+  font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif; transition: background 0.15s;
+}
+.login-modal .login-card .login-btn:hover { background: var(--accent-hover); }
+.login-modal .login-card .login-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ===== ARB DISPLAY IN TOP BAR ===== */
+.arb-identity { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.arb-identity #arbDisplay {
+  font-size: 13px; color: var(--text); font-family: 'Microsoft YaHei', sans-serif;
+}
+.arb-identity .switch-user {
+  font-size: 11px; color: var(--accent); cursor: pointer; text-decoration: none;
+  font-family: 'Microsoft YaHei', sans-serif;
+}
+.arb-identity .switch-user:hover { text-decoration: underline; color: var(--accent-hover); }
 </style>
 </head>
 <body>
+
+<!-- Login Modal -->
+<div class="login-modal" id="loginModal" style="display:none;">
+  <div class="login-card">
+    <h2>欢迎使用仲裁工具</h2>
+    <div class="login-subtitle">请输入您的姓名以开始</div>
+    <div class="login-field">
+      <label>您的姓名</label>
+      <input type="text" id="loginNameInput" placeholder="请输入姓名..." autocomplete="off">
+    </div>
+    <button class="login-btn" id="loginBtn" disabled>开始</button>
+  </div>
+</div>
 
 <!-- Upload Fallback -->
 <div class="upload-fallback" id="uploadFallback" style="display:none;">
@@ -277,6 +340,10 @@ body {
     <span class="progress-text">
       <span id="currentIdx">0</span> / <span id="totalCount">0</span>
     </span>
+  </div>
+  <div class="arb-identity">
+    <span id="arbDisplay">仲裁员: --</span>
+    <a class="switch-user" id="switchUserBtn">切换用户</a>
   </div>
 </div>
 <div class="taxonomy-link">
@@ -408,6 +475,7 @@ body {
   let dataReady = false;
   let currentDecision = '';
   let activeLevel = null;
+  let arbitratorName = '';
 
   // ========== CSV PARSER ==========
   function parseCSV(csvStr) {
@@ -926,7 +994,8 @@ body {
       String(now.getMinutes()).padStart(2, '0') +
       String(now.getSeconds()).padStart(2, '0');
 
-    const filename = 'arbitration_' + ts + '.csv';
+    const safeName = arbitratorName ? arbitratorName.replace(/[^a-zA-Z0-9\u4e00-\u9fff_-]/g, '_') : 'unknown';
+    const filename = 'arbitration_' + safeName + '_' + ts + '.csv';
     const header = 'task_id,final_path,final_path_en,arb_source,arb_note,timestamp';
     const rows = taskArbs.map(a => [
       csvEscape(a.task_id), csvEscape(a.final_path), csvEscape(a.final_path_en),
@@ -957,8 +1026,72 @@ body {
     setTimeout(() => { toast.classList.remove('show'); }, 3000);
   }
 
+  // ========== LOGIN ==========
+  function checkLoginAndInit() {
+    try {
+      const stored = localStorage.getItem('arbitrator_identity');
+      if (stored) {
+        const identity = JSON.parse(stored);
+        if (identity && identity.name) {
+          arbitratorName = identity.name;
+          applyIdentity();
+          initApp();
+          return;
+        }
+      }
+    } catch (e) {}
+    showLoginModal();
+  }
+
+  function showLoginModal() {
+    const modal = document.getElementById('loginModal');
+    modal.style.display = 'flex';
+    const nameInput = document.getElementById('loginNameInput');
+    const loginBtn = document.getElementById('loginBtn');
+
+    nameInput.value = '';
+    loginBtn.disabled = true;
+
+    nameInput.addEventListener('input', function() {
+      loginBtn.disabled = !this.value.trim();
+    });
+
+    nameInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && this.value.trim()) { doLogin(); }
+    });
+
+    loginBtn.addEventListener('click', doLogin);
+
+    setTimeout(function() { nameInput.focus(); }, 100);
+  }
+
+  function doLogin() {
+    const nameInput = document.getElementById('loginNameInput');
+    const name = nameInput.value.trim();
+    if (!name) return;
+
+    arbitratorName = name;
+    try {
+      localStorage.setItem('arbitrator_identity', JSON.stringify({ name: name }));
+    } catch (e) {}
+
+    applyIdentity();
+    document.getElementById('loginModal').style.display = 'none';
+    initApp();
+  }
+
+  function applyIdentity() {
+    document.getElementById('arbDisplay').textContent = '仲裁员: ' + arbitratorName;
+  }
+
+  function switchUser() {
+    try { localStorage.removeItem('arbitrator_identity'); } catch (e) {}
+    arbitratorName = '';
+    showLoginModal();
+  }
+
   // ========== INIT ==========
-  function init() {
+  function initApp() {
     const hasTaxonomy = typeof window.TREE_A !== 'undefined' && window.TREE_A;
     const hasArbTasks = typeof window.ARBITRATION_TASKS !== 'undefined' && window.ARBITRATION_TASKS;
 
@@ -1080,7 +1213,12 @@ body {
     loadTask(index);
   }
 
-  init();
+  document.getElementById('switchUserBtn').addEventListener('click', function(e) {
+    e.preventDefault();
+    switchUser();
+  });
+
+  checkLoginAndInit();
 })();
 </script>
 </body>
