@@ -3,39 +3,998 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sample Set Audit System</title>
+<title>Sample Set Audit — Project Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
-  body { font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: #e0e0e0; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-  .container { background: #16213e; border-radius: 12px; padding: 40px 50px; max-width: 600px; width: 90%; }
-  h1 { color: #4fc3f7; margin-bottom: 8px; }
-  p { color: #8899aa; margin-bottom: 30px; }
-  .tools { display: flex; flex-direction: column; gap: 16px; }
-  a.tool { display: block; padding: 20px 24px; background: #1c2a4a; border: 1px solid #2a3a5e; border-radius: 8px; text-decoration: none; color: #e0e0e0; transition: all 0.2s; }
-  a.tool:hover { background: #243656; border-color: #4fc3f7; }
-  a.tool .name { font-size: 18px; font-weight: 600; color: #4fc3f7; }
-  a.tool .desc { font-size: 14px; color: #8899aa; margin-top: 4px; }
-  .footer { margin-top: 30px; text-align: center; font-size: 12px; color: #556677; }
+/* ═══════════════ Obsidian Studio Theme ═══════════════ */
+:root {
+  --bg: #0c0b10;
+  --surface: #14131a;
+  --surface2: #1c1b24;
+  --surface3: #26253a;
+  --border: #2a293a;
+  --text: #ece9e4;
+  --text-dim: #7a7888;
+  --text-muted: #5a586a;
+  --accent: #e8a848;
+  --accent-hover: #f0be6c;
+  --accent-dim: rgba(232,168,72,0.10);
+  --accent-glow: rgba(232,168,72,0.25);
+  --teal: #2dd4bf;
+  --teal-dim: rgba(45,212,191,0.10);
+  --violet: #a78bfa;
+  --violet-dim: rgba(167,139,250,0.10);
+  --green: #4ade80;
+  --red: #f87171;
+  --radius: 10px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Plus Jakarta Sans', 'Noto Sans SC', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ═══════════════ Layout ═══════════════ */
+.page-wrapper {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 32px 20px 60px;
+}
+
+/* ═══════════════ Header ═══════════════ */
+.header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.header h1 {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.5px;
+  margin-bottom: 12px;
+}
+
+.header h1 span {
+  color: var(--accent);
+}
+
+.phase-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--accent-dim);
+  border: 1px solid rgba(232,168,72,0.25);
+  border-radius: 20px;
+  padding: 6px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+.phase-badge .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.header .contact {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.header .contact a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+/* ═══════════════ Collapsible Sections ═══════════════ */
+details {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+details[open] > summary {
+  border-bottom: 1px solid var(--border);
+}
+
+summary {
+  padding: 16px 20px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  user-select: none;
+  transition: background 0.15s;
+}
+
+summary:hover {
+  background: var(--surface2);
+}
+
+summary::before {
+  content: '▸';
+  font-size: 12px;
+  color: var(--text-dim);
+  transition: transform 0.2s;
+}
+
+details[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+summary::-webkit-details-marker { display: none; }
+
+.section-body {
+  padding: 20px;
+}
+
+/* ═══════════════ Overview ═══════════════ */
+.overview-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.overview-card {
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.overview-card .label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+
+.overview-card .value {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.flow-diagram {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  flex-wrap: wrap;
+  padding: 16px;
+  background: var(--surface2);
+  border-radius: 8px;
+}
+
+.flow-step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.flow-step.s1 { background: var(--accent-dim); color: var(--accent); }
+.flow-step.s2 { background: var(--teal-dim); color: var(--teal); }
+.flow-step.s3 { background: var(--violet-dim); color: var(--violet); }
+
+.flow-arrow {
+  color: var(--text-muted);
+  font-size: 18px;
+  margin: 0 6px;
+}
+
+/* ═══════════════ Tab Bar ═══════════════ */
+.tab-bar {
+  display: flex;
+  gap: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px;
+  margin-bottom: 16px;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-dim);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.tab-btn:hover {
+  color: var(--text);
+  background: var(--surface2);
+}
+
+.tab-btn.active {
+  background: var(--surface3);
+  color: var(--text);
+}
+
+.tab-btn.locked {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.tab-btn .icon { font-size: 16px; }
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* ═══════════════ Content Elements ═══════════════ */
+.section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-title .num {
+  background: var(--accent-dim);
+  color: var(--accent);
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.content-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.content-block p,
+.content-block li {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text);
+}
+
+.content-block ul, .content-block ol {
+  padding-left: 20px;
+}
+
+.content-block li {
+  margin-bottom: 6px;
+}
+
+/* ═══════════════ Team Table ═══════════════ */
+.team-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.team-card {
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.team-card h4 {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--accent);
+}
+
+.team-card .lead {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.team-card ul {
+  list-style: none;
+  padding: 0;
+}
+
+.team-card ul li {
+  font-size: 13px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+}
+
+.team-card ul li:last-child {
+  border-bottom: none;
+}
+
+.group-tag {
+  background: var(--accent-dim);
+  color: var(--accent);
+  padding: 1px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.teal .group-tag {
+  background: var(--teal-dim);
+  color: var(--teal);
+}
+
+.team-card.teal h4 {
+  color: var(--teal);
+}
+
+.note-box {
+  background: var(--accent-dim);
+  border-left: 3px solid var(--accent);
+  padding: 10px 14px;
+  border-radius: 0 6px 6px 0;
+  font-size: 13px;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+
+/* ═══════════════ Steps ═══════════════ */
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.step {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.step-num {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 8px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.step-body h5 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.step-body p {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+/* ═══════════════ Action Buttons ═══════════════ */
+.action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.action-item {
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.action-item .act-label {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.action-item .act-desc {
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.act-accept .act-label { color: var(--green); }
+.act-modify .act-label { color: var(--accent); }
+.act-reselect .act-label { color: var(--teal); }
+.act-uncertain .act-label { color: var(--violet); }
+
+/* ═══════════════ Keyboard Shortcuts ═══════════════ */
+.shortcut-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+}
+
+.shortcut {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+kbd {
+  display: inline-block;
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  min-width: 28px;
+  text-align: center;
+}
+
+/* ═══════════════ FAQ ═══════════════ */
+.faq-item {
+  border-bottom: 1px solid var(--border);
+  padding: 12px 0;
+}
+
+.faq-item:last-child { border-bottom: none; }
+
+.faq-q {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.faq-a {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+/* ═══════════════ Tool Links ═══════════════ */
+.tool-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s;
+  margin: 4px;
+}
+
+.tool-link.primary {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.tool-link.primary:hover {
+  background: var(--accent-hover);
+  box-shadow: 0 4px 20px var(--accent-glow);
+}
+
+.tool-link.secondary {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.tool-link.secondary:hover {
+  border-color: var(--accent);
+  background: var(--surface3);
+}
+
+.tool-link.teal-btn {
+  background: var(--teal);
+  color: var(--bg);
+}
+
+.tool-link.teal-btn:hover {
+  box-shadow: 0 4px 20px rgba(45,212,191,0.25);
+}
+
+.tool-links-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+/* ═══════════════ Locked Panel ═══════════════ */
+.locked-panel {
+  text-align: center;
+  padding: 48px 20px;
+  color: var(--text-dim);
+}
+
+.locked-panel .lock-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+  opacity: 0.4;
+}
+
+.locked-panel h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text-dim);
+}
+
+.locked-panel p {
+  font-size: 14px;
+  max-width: 400px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ═══════════════ Footer ═══════════════ */
+.footer {
+  margin-top: 40px;
+  text-align: center;
+  padding: 20px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.footer a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+/* ═══════════════ Responsive ═══════════════ */
+@media (max-width: 600px) {
+  .page-wrapper { padding: 20px 14px 40px; }
+  .header h1 { font-size: 22px; }
+  .overview-grid { grid-template-columns: 1fr; }
+  .team-grid { grid-template-columns: 1fr; }
+  .action-grid { grid-template-columns: 1fr; }
+  .flow-diagram { flex-direction: column; gap: 6px; }
+  .flow-arrow { transform: rotate(90deg); margin: 2px 0; }
+  .tab-btn { font-size: 13px; padding: 10px 8px; }
+}
 </style>
 </head>
 <body>
-<div class="container">
-  <h1>Sample Set Audit System</h1>
-  <p>Image annotation, review, and arbitration tools</p>
-  <div class="tools">
-    <a class="tool" href="tools/annotator_tool.html">
-      <div class="name">Annotator Tool</div>
-      <div class="desc">For annotators (A-E) &mdash; Label images with the V2 taxonomy tree (English UI)</div>
-    </a>
-    <a class="tool" href="tools/reviewer_tool.html">
-      <div class="name">Reviewer Tool</div>
-      <div class="desc">For reviewers (R1/R2) &mdash; Review disagreed annotations (English UI)</div>
-    </a>
-    <a class="tool" href="tools/arbitrator_tool.html">
-      <div class="name">Arbitrator Tool / &#20210;&#35009;&#24037;&#20855;</div>
-      <div class="desc">For arbitrators &mdash; Final arbitration on disputed tasks (Chinese UI / &#20013;&#25991;&#30028;&#38754;)</div>
-    </a>
+<div class="page-wrapper">
+
+  <!-- ═══════════════ HEADER ═══════════════ -->
+  <header class="header">
+    <h1>Sample Set <span>Audit</span> System</h1>
+    <div class="phase-badge">
+      <span class="dot"></span>
+      Phase 1 — Annotation in progress
+    </div>
+    <div class="contact">Admin contact: Rajesh · <a href="mailto:rajeshzheng@users.noreply.github.com">Email</a></div>
+  </header>
+
+  <!-- ═══════════════ PROJECT OVERVIEW ═══════════════ -->
+  <details open>
+    <summary>Project Overview</summary>
+    <div class="section-body">
+      <div class="overview-grid">
+        <div class="overview-card">
+          <div class="label">What</div>
+          <div class="value">1,780 images need visual element classification using a taxonomy tree</div>
+        </div>
+        <div class="overview-card">
+          <div class="label">Who</div>
+          <div class="value">5 Annotators → 2 Reviewers → 1 Arbitrator</div>
+        </div>
+        <div class="overview-card">
+          <div class="label">Batches</div>
+          <div class="value">Batch 780 (priority) + Batch 1000</div>
+        </div>
+        <div class="overview-card">
+          <div class="label">Output</div>
+          <div class="value">Each annotator exports CSV files after completion</div>
+        </div>
+      </div>
+
+      <div class="flow-diagram">
+        <div class="flow-step s1">Phase 1 · Annotation</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step s2">Phase 2 · Review</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step s3">Phase 3 · Arbitration</div>
+      </div>
+    </div>
+  </details>
+
+  <!-- ═══════════════ TAB BAR ═══════════════ -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('annotator')">
+      <span class="icon">📝</span> Annotator Guide
+    </button>
+    <button class="tab-btn locked" onclick="switchTab('reviewer')" id="reviewerTabBtn">
+      <span class="icon">🔍</span> Reviewer Guide
+      <!-- Remove "locked" class and add "active" when Phase 2 starts -->
+    </button>
   </div>
-  <div class="footer">Taxonomy Viewer: <a href="https://rajeshzheng.github.io/ls-taxonomy-v2_202602/" style="color:#4fc3f7;">ls-taxonomy-v2_202602</a></div>
+
+  <!-- ═══════════════ ANNOTATOR TAB ═══════════════ -->
+  <div class="tab-content active" id="tab-annotator">
+
+    <!-- Team Assignment -->
+    <div class="content-block">
+      <div class="section-title"><span class="num">1</span> Team Assignment</div>
+      <div class="team-grid">
+        <div class="team-card">
+          <h4>🇮🇳 India Team</h4>
+          <div class="lead">Lead: Upasna</div>
+          <ul>
+            <li><span>TBD</span> <span class="group-tag">Group A</span></li>
+            <li><span>TBD</span> <span class="group-tag">Group B</span></li>
+            <li><span>TBD</span> <span class="group-tag">Group C</span></li>
+          </ul>
+        </div>
+        <div class="team-card teal">
+          <h4>🇮🇩 Indonesia Team</h4>
+          <div class="lead">Lead: Sandy</div>
+          <ul>
+            <li><span>TBD</span> <span class="group-tag">Group D</span></li>
+            <li><span>TBD</span> <span class="group-tag">Group E</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="note-box">
+        Ask your Local Head (Upasna / Sandy) which group you are assigned to.
+      </div>
+    </div>
+
+    <!-- Quick Start -->
+    <div class="content-block">
+      <div class="section-title"><span class="num">2</span> Quick Start</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h5>Open the Annotator Tool</h5>
+            <p>Click the button below to open the annotation interface.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h5>Log in</h5>
+            <p>Enter your name and select your assigned group (A–E).</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h5>Start annotating</h5>
+            <p>Work on <strong>Batch 780 first</strong>, then Batch 1000. Follow the on-screen instructions.</p>
+          </div>
+        </div>
+      </div>
+      <div class="tool-links-row">
+        <a class="tool-link primary" href="tools/annotator_tool.html">Open Annotator Tool →</a>
+      </div>
+    </div>
+
+    <!-- How to Annotate -->
+    <details>
+      <summary>How to Annotate</summary>
+      <div class="section-body">
+        <p style="margin-bottom:14px; color:var(--text-dim); font-size:14px;">The annotation interface has two main areas:</p>
+        <div class="overview-grid" style="margin-bottom:18px;">
+          <div class="overview-card">
+            <div class="label">Left Panel</div>
+            <div class="value" style="font-size:13px;">Image preview — the image you need to classify</div>
+          </div>
+          <div class="overview-card">
+            <div class="label">Right Panel</div>
+            <div class="value" style="font-size:13px;">AI suggestion → Action buttons → Level selectors → Confirm</div>
+          </div>
+        </div>
+
+        <p style="font-weight:600; margin-bottom:10px;">Action Buttons — choose one for each image:</p>
+        <div class="action-grid">
+          <div class="action-item act-accept">
+            <div class="act-label">✅ Accept</div>
+            <div class="act-desc">AI suggestion is correct. No changes needed.</div>
+          </div>
+          <div class="action-item act-modify">
+            <div class="act-label">✏️ Modify</div>
+            <div class="act-desc">AI is close but needs adjustment at some level.</div>
+          </div>
+          <div class="action-item act-reselect">
+            <div class="act-label">🔄 Reselect</div>
+            <div class="act-desc">AI is wrong. Select the correct path from scratch.</div>
+          </div>
+          <div class="action-item act-uncertain">
+            <div class="act-label">❓ Uncertain</div>
+            <div class="act-desc">Cannot determine the classification. You must provide a reason.</div>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- Keyboard Shortcuts -->
+    <details>
+      <summary>Keyboard Shortcuts</summary>
+      <div class="section-body">
+        <div class="shortcut-grid">
+          <div class="shortcut"><kbd>A</kbd> <span>Accept AI suggestion</span></div>
+          <div class="shortcut"><kbd>U</kbd> <span>Mark as Uncertain</span></div>
+          <div class="shortcut"><kbd>Enter</kbd> <span>Confirm & Next</span></div>
+          <div class="shortcut"><kbd>←</kbd> <kbd>→</kbd> <span>Navigate images</span></div>
+          <div class="shortcut"><kbd>1</kbd>–<kbd>9</kbd> <span>Quick select option</span></div>
+        </div>
+      </div>
+    </details>
+
+    <!-- Important Notes -->
+    <details open>
+      <summary>Important Notes</summary>
+      <div class="section-body">
+        <ul style="font-size:14px;">
+          <li><strong>Always select the LEAF node</strong> — choose the deepest available level in the taxonomy tree, not a parent category.</li>
+          <li><strong>Export CSV regularly</strong> — click "Export CSV" every ~100 images as a backup.</li>
+          <li><strong>Complete Batch 780 first</strong>, then start Batch 1000.</li>
+          <li><strong>Data auto-saves in your browser</strong>, but exporting is the only safe backup. If you switch browsers or clear data, unexported work will be lost.</li>
+          <li><strong>One person per group</strong> — do not share your group assignment with others.</li>
+        </ul>
+      </div>
+    </details>
+
+    <!-- After Completion -->
+    <div class="content-block">
+      <div class="section-title"><span class="num">3</span> After You Finish</div>
+      <ol style="font-size:14px; padding-left:20px;">
+        <li style="margin-bottom:8px;">Click <strong>"Export CSV"</strong> in the tool for each batch (you will get 2 CSV files: one for 780, one for 1000).</li>
+        <li style="margin-bottom:8px;">Send the CSV files to your <strong>Local Head</strong>:
+          <ul style="margin-top:4px;">
+            <li>India team → send to <strong>Upasna</strong></li>
+            <li>Indonesia team → send to <strong>Sandy</strong></li>
+          </ul>
+        </li>
+        <li>Your Local Head will collect all CSVs and forward them to the Admin.</li>
+      </ol>
+      <div style="margin-top:16px; padding:12px 16px; background:var(--surface2); border-radius:8px; font-size:13px; color:var(--text-dim);">
+        <strong style="color:var(--text);">File flow:</strong>
+        Annotator → export CSV → Local Head (Upasna / Sandy) → Admin (Rajesh)
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <details>
+      <summary>FAQ</summary>
+      <div class="section-body">
+        <div class="faq-item">
+          <div class="faq-q">Q: The image won't load?</div>
+          <div class="faq-a">A: This is usually a network issue. Skip the image (use → arrow) and come back to it later. The tool will mark it as unannotated.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Q: None of the taxonomy options fit the image?</div>
+          <div class="faq-a">A: Choose the closest match, or mark it as "Uncertain" and explain why in the reason field.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Q: I closed my browser — is my work lost?</div>
+          <div class="faq-a">A: No, your progress is auto-saved in your browser's local storage. But always export CSV regularly as a backup.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Q: Can I annotate on my phone?</div>
+          <div class="faq-a">A: The tool works on mobile browsers, but a desktop/laptop is recommended for the best experience.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Q: How long does the annotation take?</div>
+          <div class="faq-a">A: It depends on the batch size. Each image typically takes 10–30 seconds once you're familiar with the process.</div>
+        </div>
+      </div>
+    </details>
+
+    <!-- Resources -->
+    <div class="content-block">
+      <div class="section-title"><span class="num">4</span> Resources</div>
+      <div class="tool-links-row">
+        <a class="tool-link primary" href="tools/annotator_tool.html">📝 Annotator Tool</a>
+        <a class="tool-link secondary" href="https://rajeshzheng.github.io/ls-taxonomy-v2_202602/" target="_blank">🌳 Taxonomy Viewer</a>
+      </div>
+    </div>
+
+  </div>
+  <!-- END ANNOTATOR TAB -->
+
+  <!-- ═══════════════ REVIEWER TAB ═══════════════ -->
+  <div class="tab-content" id="tab-reviewer">
+
+    <!--
+      ╔══════════════════════════════════════════════════════════════╗
+      ║  PHASE CONTROL:                                            ║
+      ║  When Phase 2 starts:                                      ║
+      ║  1. Remove class="locked" from #reviewerTabBtn             ║
+      ║  2. Remove the .locked-panel div below                     ║
+      ║  3. Uncomment the reviewer content sections below          ║
+      ║  4. Update the phase-badge text to "Phase 2"               ║
+      ╚══════════════════════════════════════════════════════════════╝
+    -->
+
+    <div class="locked-panel">
+      <div class="lock-icon">🔒</div>
+      <h3>Review Phase Has Not Started</h3>
+      <p>This section will be unlocked when Phase 1 (Annotation) is complete and review tasks are prepared by the Admin.</p>
+      <p style="margin-top:12px;">You will be notified when it's time to start reviewing.</p>
+    </div>
+
+    <!-- REVIEWER CONTENT (uncomment when Phase 2 starts) -->
+    <!--
+    <div class="content-block">
+      <div class="section-title"><span class="num">1</span> Your Role</div>
+      <div class="team-grid">
+        <div class="team-card">
+          <h4>Reviewer R1</h4>
+          <div class="lead">Upasna (India)</div>
+          <ul><li>Reviews images where annotators disagreed</li></ul>
+        </div>
+        <div class="team-card teal">
+          <h4>Reviewer R2</h4>
+          <div class="lead">Sandy (Indonesia)</div>
+          <ul><li>Reviews images where annotators disagreed</li></ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-block">
+      <div class="section-title"><span class="num">2</span> Quick Start</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h5>Open the Reviewer Tool</h5>
+            <p>Click the button below to open the review interface.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h5>Log in</h5>
+            <p>Enter your name and select your role (R1 or R2).</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h5>Upload the review CSV</h5>
+            <p>The Admin will provide you with a CSV file containing items that need review.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <h5>Review each item</h5>
+            <p>Compare annotations and choose the correct classification.</p>
+          </div>
+        </div>
+      </div>
+      <div class="tool-links-row">
+        <a class="tool-link teal-btn" href="tools/reviewer_tool.html">Open Reviewer Tool →</a>
+      </div>
+    </div>
+
+    <details>
+      <summary>How to Review</summary>
+      <div class="section-body">
+        <p style="margin-bottom:12px; font-size:14px;">For each review item, you will see:</p>
+        <ul style="font-size:14px;">
+          <li><strong>The image</strong> being reviewed</li>
+          <li><strong>AI suggestion</strong> — what the AI originally predicted</li>
+          <li><strong>Annotator selections</strong> — what each annotator chose (side by side)</li>
+          <li><strong>Your decision</strong> — pick the correct one or select a new path</li>
+        </ul>
+        <p style="margin-top:14px; font-size:14px;"><strong>Decision options:</strong></p>
+        <ul style="font-size:14px;">
+          <li><strong>Pick Annotator X</strong> — agree with one annotator's selection</li>
+          <li><strong>Pick AI</strong> — agree with the original AI suggestion</li>
+          <li><strong>New Path</strong> — neither is correct; select your own path</li>
+        </ul>
+      </div>
+    </details>
+
+    <div class="content-block">
+      <div class="section-title"><span class="num">3</span> After You Finish</div>
+      <ol style="font-size:14px; padding-left:20px;">
+        <li style="margin-bottom:8px;">Click <strong>"Export CSV"</strong> in the Reviewer Tool.</li>
+        <li>Send the exported CSV file to <strong>Admin (Rajesh)</strong>.</li>
+      </ol>
+    </div>
+
+    <div class="content-block">
+      <div class="section-title"><span class="num">4</span> Resources</div>
+      <div class="tool-links-row">
+        <a class="tool-link teal-btn" href="tools/reviewer_tool.html">🔍 Reviewer Tool</a>
+        <a class="tool-link secondary" href="https://rajeshzheng.github.io/ls-taxonomy-v2_202602/" target="_blank">🌳 Taxonomy Viewer</a>
+      </div>
+    </div>
+    -->
+
+  </div>
+  <!-- END REVIEWER TAB -->
+
+  <!-- ═══════════════ FOOTER ═══════════════ -->
+  <footer class="footer">
+    <a href="https://rajeshzheng.github.io/ls-taxonomy-v2_202602/" target="_blank">Taxonomy Viewer</a>
+    &nbsp;·&nbsp;
+    <a href="tools/annotator_tool.html">Annotator Tool</a>
+    &nbsp;·&nbsp;
+    <a href="tools/reviewer_tool.html">Reviewer Tool</a>
+    &nbsp;·&nbsp;
+    <a href="tools/arbitrator_tool.html">Arbitrator Tool</a>
+  </footer>
+
 </div>
+
+<script>
+function switchTab(tab) {
+  // If locked, do nothing
+  if (tab === 'reviewer') {
+    const btn = document.getElementById('reviewerTabBtn');
+    if (btn.classList.contains('locked')) return;
+  }
+
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+  if (tab === 'annotator') {
+    document.querySelector('.tab-btn:first-child').classList.add('active');
+    document.getElementById('tab-annotator').classList.add('active');
+  } else {
+    document.getElementById('reviewerTabBtn').classList.add('active');
+    document.getElementById('tab-reviewer').classList.add('active');
+  }
+}
+</script>
+
 </body>
 </html>
