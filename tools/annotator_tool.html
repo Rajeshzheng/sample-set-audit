@@ -1118,19 +1118,20 @@ body {
     <h2>Welcome to Image Annotation Tool</h2>
     <div class="login-field">
       <label for="loginName">Your Name</label>
-      <input type="text" id="loginName" placeholder="Enter your name..." required>
+      <select id="loginName">
+        <option value="">-- Select your name --</option>
+        <option value="Avneet" data-group="A">Avneet</option>
+        <option value="Aastha" data-group="B">Aastha</option>
+        <option value="Udit Chauhan" data-group="C">Udit Chauhan</option>
+        <option value="Bobby" data-group="D">Bobby</option>
+        <option value="Maria" data-group="E">Maria</option>
+      </select>
     </div>
     <div class="login-field">
       <label for="loginGroup">Annotator Group</label>
-      <select id="loginGroup">
-        <option value="A">A</option>
-        <option value="B">B</option>
-        <option value="C">C</option>
-        <option value="D">D</option>
-        <option value="E">E</option>
-      </select>
+      <input type="text" id="loginGroup" readonly style="background:var(--surface);color:var(--text-dim);border:1px solid var(--border);padding:10px 14px;border-radius:8px;font-size:15px;font-family:inherit;cursor:not-allowed;">
     </div>
-    <div class="login-note">Your group determines which images are assigned to you.</div>
+    <div class="login-note">Your group is auto-assigned based on your name.</div>
     <button class="login-start-btn" id="loginStartBtn" disabled>Start</button>
   </div>
 </div>
@@ -1967,7 +1968,7 @@ body {
   function showLoginModal() {
     document.getElementById('loginOverlay').style.display = 'flex';
     document.getElementById('loginName').value = '';
-    document.getElementById('loginGroup').value = 'A';
+    document.getElementById('loginGroup').value = '';
     document.getElementById('loginStartBtn').disabled = true;
     document.getElementById('loginName').focus();
   }
@@ -1977,24 +1978,22 @@ body {
   }
 
   function setupLoginListeners() {
-    const nameInput = document.getElementById('loginName');
+    const nameSelect = document.getElementById('loginName');
+    const groupInput = document.getElementById('loginGroup');
     const startBtn = document.getElementById('loginStartBtn');
 
-    nameInput.addEventListener('input', function() {
-      startBtn.disabled = !this.value.trim();
-    });
-
-    nameInput.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter' && this.value.trim()) {
-        e.preventDefault();
-        startBtn.click();
-      }
+    nameSelect.addEventListener('change', function() {
+      const selected = this.options[this.selectedIndex];
+      const group = selected.dataset.group || '';
+      groupInput.value = group ? 'Group ' + group : '';
+      startBtn.disabled = !this.value;
     });
 
     startBtn.addEventListener('click', function() {
-      const name = document.getElementById('loginName').value.trim();
-      const group = document.getElementById('loginGroup').value;
-      if (!name) return;
+      const name = document.getElementById('loginName').value;
+      const selected = document.getElementById('loginName').options[document.getElementById('loginName').selectedIndex];
+      const group = selected.dataset.group || '';
+      if (!name || !group) return;
 
       annotatorName = name;
       annotatorId = group;
@@ -2031,14 +2030,17 @@ body {
 
   function loadSavedIdentity() {
     try {
+      const VALID_NAMES = {'Avneet':'A','Aastha':'B','Udit Chauhan':'C','Bobby':'D','Maria':'E'};
       const saved = localStorage.getItem('ssa_annotator_identity');
       if (saved) {
         const identity = JSON.parse(saved);
-        if (identity.name && identity.group) {
+        if (identity.name && identity.group && VALID_NAMES[identity.name] === identity.group) {
           annotatorName = identity.name;
           annotatorId = identity.group;
           return true;
         }
+        // Invalid saved identity — clear it
+        localStorage.removeItem('ssa_annotator_identity');
       }
     } catch (e) {}
     return false;
@@ -2094,13 +2096,16 @@ body {
         // Remove existing listener and replace
         const newLoginStartBtn = loginStartBtn.cloneNode(true);
         loginStartBtn.parentNode.replaceChild(newLoginStartBtn, loginStartBtn);
-        document.getElementById('loginName').addEventListener('input', function() {
-          newLoginStartBtn.disabled = !this.value.trim();
+        document.getElementById('loginName').addEventListener('change', function() {
+          var sel = this.options[this.selectedIndex];
+          document.getElementById('loginGroup').value = sel.dataset.group ? 'Group ' + sel.dataset.group : '';
+          newLoginStartBtn.disabled = !this.value;
         });
         newLoginStartBtn.addEventListener('click', function() {
-          const name = document.getElementById('loginName').value.trim();
-          const group = document.getElementById('loginGroup').value;
-          if (!name) return;
+          const nameEl = document.getElementById('loginName');
+          const name = nameEl.value;
+          const group = nameEl.options[nameEl.selectedIndex].dataset.group || '';
+          if (!name || !group) return;
           annotatorName = name;
           annotatorId = group;
           try {
