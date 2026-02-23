@@ -9,52 +9,70 @@ body { background: #0c0b10; color: #ece9e4; font-family: system-ui, sans-serif; 
 h2 { color: #e8a848; font-size: 18px; }
 .step { background: #14131a; border: 1px solid #2a293a; border-radius: 10px; padding: 16px; margin: 16px 0; }
 .step-num { color: #2dd4bf; font-weight: 700; }
-pre { background: #1c1b24; padding: 12px; border-radius: 8px; font-size: 12px; overflow-x: auto; white-space: pre-wrap; word-break: break-all; }
+pre { background: #1c1b24; padding: 12px; border-radius: 8px; font-size: 11px; overflow-x: auto; white-space: pre-wrap; word-break: break-all; line-height: 1.4; }
 button { background: #e8a848; color: #000; border: none; padding: 14px 28px; border-radius: 8px; font-size: 16px; font-weight: 700; width: 100%; cursor: pointer; margin: 10px 0; }
 button.copied { background: #34d399; }
 .note { color: #7a7888; font-size: 13px; margin-top: 8px; }
+.warn { color: #fbbf24; font-size: 13px; }
 </style>
 </head>
 <body>
 
-<h2>Apps Script 一键复制</h2>
+<h2>Apps Script v2 — 含自动 Dashboard</h2>
+<p class="warn">更新说明：用此代码覆盖旧代码，然后更新部署（URL 不变）</p>
 
 <div class="step">
   <p><span class="step-num">Step 1</span> 点下面按钮复制代码</p>
   <button id="copyBtn" onclick="copyCode()">复制代码到剪贴板</button>
   <pre id="code">function doPost(e) {
-  var s = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('raw_log');
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var s = ss.getSheetByName('raw_log');
   var d = JSON.parse(e.postData.contents);
   var v = ['Aastha','Avneet','Udit Chauhan','Bobby','Maria'];
   if (v.indexOf(d.name) === -1) return ContentService.createTextOutput('err');
   s.appendRow([new Date(), d.name, d.group, d.batch, d.completed, d.total, d.type, d.timestamp, d.tool_version]);
+  setupDashboard_(ss);
   return ContentService.createTextOutput('ok');
 }
-function doGet() { return ContentService.createTextOutput('running'); }</pre>
+function doGet() { return ContentService.createTextOutput('running v2'); }
+function setupDashboard_(ss) {
+  var ds = ss.getSheetByName('dashboard');
+  if (!ds || ds.getRange('A1').getValue() === '姓名') return;
+  var h = [['姓名','Group','780已完成','780总数','780进度','1000已完成','1000总数','1000进度','最后活跃']];
+  ds.getRange('A1:I1').setValues(h).setFontWeight('bold').setBackground('#14131a').setFontColor('#e8a848');
+  var names = [['Aastha','A'],['Avneet','B'],['Udit Chauhan','C'],['Bobby','D'],['Maria','E']];
+  for (var i = 0; i < names.length; i++) {
+    var r = i + 2;
+    ds.getRange('A' + r).setValue(names[i][0]);
+    ds.getRange('B' + r).setValue(names[i][1]);
+    ds.getRange('C' + r).setFormula('=IFERROR(INDEX(raw_log!E:E,MATCH(2,1/(raw_log!B:B=A' + r + ')/(raw_log!D:D="780"),1)),0)');
+    ds.getRange('D' + r).setFormula('=IFERROR(INDEX(raw_log!F:F,MATCH(2,1/(raw_log!B:B=A' + r + ')/(raw_log!D:D="780"),1)),0)');
+    ds.getRange('E' + r).setFormula('=IF(D' + r + '>0,TEXT(C' + r + '/D' + r + ',"0.0%"),"-")');
+    ds.getRange('F' + r).setFormula('=IFERROR(INDEX(raw_log!E:E,MATCH(2,1/(raw_log!B:B=A' + r + ')/(raw_log!D:D="1000"),1)),0)');
+    ds.getRange('G' + r).setFormula('=IFERROR(INDEX(raw_log!F:F,MATCH(2,1/(raw_log!B:B=A' + r + ')/(raw_log!D:D="1000"),1)),0)');
+    ds.getRange('H' + r).setFormula('=IF(G' + r + '>0,TEXT(F' + r + '/G' + r + ',"0.0%"),"-")');
+    ds.getRange('I' + r).setFormula('=IFERROR(TEXT(INDEX(raw_log!A:A,MATCH(2,1/(raw_log!B:B=A' + r + '),1)),"MM/DD HH:mm"),"-")');
+  }
+  ds.setFrozenRows(1);
+  ds.autoResizeColumns(1, 9);
+}</pre>
 </div>
 
 <div class="step">
-  <p><span class="step-num">Step 2</span> 打开 Google Sheets</p>
-  <p>新建一个表格，把 Sheet1 底部 tab 名改为 <b>raw_log</b></p>
+  <p><span class="step-num">Step 2</span> 更新 Apps Script</p>
+  <p>打开你之前的 Apps Script 编辑器</p>
+  <p><b>全选删掉</b>旧代码 → <b>粘贴</b>新代码</p>
 </div>
 
 <div class="step">
-  <p><span class="step-num">Step 3</span> 打开 Apps Script</p>
-  <p>点菜单 <b>Extensions → Apps Script</b></p>
-  <p>删掉默认代码，<b>粘贴</b>刚才复制的代码</p>
-</div>
-
-<div class="step">
-  <p><span class="step-num">Step 4</span> 部署</p>
-  <p>点右上 <b>Deploy → New deployment</b></p>
-  <p>类型选 <b>Web app</b></p>
-  <p>Execute as: <b>Me</b></p>
-  <p>Who has access: <b>Anyone</b></p>
-  <p>点 <b>Deploy</b>，复制生成的 URL 发给我</p>
+  <p><span class="step-num">Step 3</span> 更新部署（URL 不变）</p>
+  <p>点 <b>Deploy → Manage deployments</b></p>
+  <p>点铅笔图标编辑 → Version 选 <b>New version</b></p>
+  <p>点 <b>Deploy</b></p>
 </div>
 
 <div class="note">
-  ⚠️ 首次部署会要求授权，点 "Review Permissions" → 选你的账号 → "Advanced" → "Go to (unsafe)" → "Allow"
+  更新完成后，下一次标注员上报数据时 dashboard 会自动生成表头和公式，无需手动填写。
 </div>
 
 <script>
