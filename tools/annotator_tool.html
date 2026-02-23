@@ -1120,8 +1120,8 @@ body {
       <label for="loginName">Your Name</label>
       <select id="loginName">
         <option value="">-- Select your name --</option>
-        <option value="Avneet" data-group="A">Avneet</option>
-        <option value="Aastha" data-group="B">Aastha</option>
+        <option value="Aastha" data-group="A">Aastha</option>
+        <option value="Avneet" data-group="B">Avneet</option>
         <option value="Udit Chauhan" data-group="C">Udit Chauhan</option>
         <option value="Bobby" data-group="D">Bobby</option>
         <option value="Maria" data-group="E">Maria</option>
@@ -2030,7 +2030,7 @@ body {
 
   function loadSavedIdentity() {
     try {
-      const VALID_NAMES = {'Avneet':'A','Aastha':'B','Udit Chauhan':'C','Bobby':'D','Maria':'E'};
+      const VALID_NAMES = {'Aastha':'A','Avneet':'B','Udit Chauhan':'C','Bobby':'D','Maria':'E'};
       const saved = localStorage.getItem('ssa_annotator_identity');
       if (saved) {
         const identity = JSON.parse(saved);
