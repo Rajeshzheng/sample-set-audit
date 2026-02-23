@@ -1332,6 +1332,51 @@ body {
   let taxonomyData = null;
   let tasks780 = [];
   let tasks1000 = [];
+  // ===== 进度上报配置 =====
+  var REPORT_ENABLED = true;
+  var REPORT_URL = 'https://script.google.com/macros/s/AKfycbxP4a9fyRdUm-mAzoWVg1sd1TbdgcaEIszAcG1z8cBHnoW0HcpvQPTdTB-RBzHB41oF/exec';
+  var TOOL_VERSION = '1.1';
+
+  var _lastReport = {};
+  function shouldReport(batch, completed) {
+    var key = batch + '_' + completed;
+    var now = Date.now();
+    if (_lastReport[key] && (now - _lastReport[key] < 10000)) return false;
+    _lastReport[key] = now;
+    return true;
+  }
+
+  function reportProgress(type) {
+    if (!REPORT_ENABLED || !REPORT_URL) return;
+    if (!annotatorName || !annotatorId || !batchId) return;
+
+    var completed = Object.keys(annotations).length;
+    var total = currentTasks.length;
+    if (total === 0) return;
+
+    if (!shouldReport(batchId, completed)) return;
+
+    var payload = JSON.stringify({
+      name: annotatorName,
+      group: annotatorId,
+      batch: batchId,
+      completed: completed,
+      total: total,
+      timestamp: new Date().toISOString(),
+      type: type,
+      tool_version: TOOL_VERSION
+    });
+
+    try {
+      fetch(REPORT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
+        body: payload
+      }).catch(function() {});
+    } catch (e) {}
+  }
+
   let manifestData = [];
   let currentTasks = [];
   let currentIndex = 0;
@@ -1840,6 +1885,7 @@ body {
     } catch (e) {
       console.warn('localStorage write failed:', e);
     }
+    reportProgress('heartbeat');
   }
 
   function loadFromLocalStorage() {
@@ -2401,6 +2447,7 @@ body {
     }
 
     loadTask(startIdx);
+    reportProgress('init');
   }
 
   // Start
