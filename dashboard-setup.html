@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Setup Guide</title>
+<style>
+body { background: #0c0b10; color: #ece9e4; font-family: 'Segoe UI', system-ui, sans-serif; padding: 20px; max-width: 700px; margin: 0 auto; line-height: 1.7; }
+h1 { color: #e8a848; font-size: 22px; margin-bottom: 4px; }
+.subtitle { color: #7a7888; font-size: 14px; margin-bottom: 24px; }
+h2 { color: #2dd4bf; font-size: 16px; margin-top: 28px; }
+.step { background: #14131a; border: 1px solid #2a293a; border-radius: 10px; padding: 18px; margin: 14px 0; }
+.step-num { display: inline-block; background: #e8a848; color: #000; font-weight: 700; width: 28px; height: 28px; border-radius: 50%; text-align: center; line-height: 28px; font-size: 14px; margin-right: 8px; }
+.key { background: #1c1b24; border: 1px solid #2a293a; border-radius: 4px; padding: 2px 8px; font-family: monospace; font-size: 13px; color: #2dd4bf; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+th { background: #1c1b24; color: #e8a848; padding: 8px 10px; text-align: left; border: 1px solid #2a293a; }
+td { padding: 8px 10px; border: 1px solid #2a293a; }
+.formula { background: #1c1b24; padding: 10px 14px; border-radius: 8px; font-family: monospace; font-size: 12px; margin: 8px 0; overflow-x: auto; white-space: nowrap; position: relative; cursor: pointer; border: 1px solid #2a293a; }
+.formula:hover { border-color: #e8a848; }
+.formula::after { content: '📋 click to copy'; position: absolute; right: 8px; top: 8px; font-size: 10px; color: #7a7888; font-family: system-ui; }
+.formula.copied::after { content: '✓ copied!'; color: #34d399; }
+.warn { background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.3); border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #fde68a; margin: 16px 0; }
+.note { color: #7a7888; font-size: 13px; }
+.preview { background: #1c1b24; border: 1px solid #2a293a; border-radius: 8px; padding: 14px; margin: 12px 0; overflow-x: auto; }
+.preview table { margin: 0; }
+.preview th { background: #26253a; }
+</style>
+</head>
+<body>
+
+<h1>Dashboard Setup Guide</h1>
+<p class="subtitle">For Upasna — Setting up the progress monitoring dashboard</p>
+
+<div class="warn">
+  <b>Account:</b> Log in to Google Sheets with the <b>AIGC Gmail account</b>. Find the sheet named <b>"Progress Monitor"</b>.
+</div>
+
+<h2>What you'll be doing</h2>
+<p>The <span class="key">raw_log</span> tab is already receiving real-time data from annotators. You just need to set up the <span class="key">dashboard</span> tab with formulas so we can see everyone's progress at a glance.</p>
+
+<h2>Expected result</h2>
+<div class="preview">
+  <table>
+    <tr><th>姓名</th><th>Group</th><th>780已完成</th><th>780总数</th><th>780进度</th><th>1000已完成</th><th>1000总数</th><th>1000进度</th><th>最后活跃</th></tr>
+    <tr><td>Aastha</td><td>A</td><td>120</td><td>468</td><td>25.6%</td><td>50</td><td>600</td><td>8.3%</td><td>02/24 15:30</td></tr>
+    <tr><td>Avneet</td><td>B</td><td>95</td><td>468</td><td>20.3%</td><td>0</td><td>600</td><td>0.0%</td><td>02/24 14:25</td></tr>
+    <tr><td>Udit Chauhan</td><td>C</td><td>80</td><td>468</td><td>17.1%</td><td>30</td><td>600</td><td>5.0%</td><td>02/24 13:50</td></tr>
+    <tr><td>Bobby</td><td>D</td><td>200</td><td>468</td><td>42.7%</td><td>180</td><td>600</td><td>30.0%</td><td>02/24 15:28</td></tr>
+    <tr><td>Maria</td><td>E</td><td>50</td><td>468</td><td>10.7%</td><td>0</td><td>600</td><td>0.0%</td><td>02/24 14:10</td></tr>
+  </table>
+</div>
+
+<h2>Steps</h2>
+
+<div class="step">
+  <p><span class="step-num">1</span> <b>Open the sheet & go to the <span class="key">dashboard</span> tab</b></p>
+  <p>If there's no <span class="key">dashboard</span> tab at the bottom, click <b>+</b> to add a new sheet and rename it to <b>dashboard</b>.</p>
+</div>
+
+<div class="step">
+  <p><span class="step-num">2</span> <b>Type the headers in Row 1</b></p>
+  <table>
+    <tr><th>Cell</th><th>Type this</th></tr>
+    <tr><td>A1</td><td>姓名</td></tr>
+    <tr><td>B1</td><td>Group</td></tr>
+    <tr><td>C1</td><td>780已完成</td></tr>
+    <tr><td>D1</td><td>780总数</td></tr>
+    <tr><td>E1</td><td>780进度</td></tr>
+    <tr><td>F1</td><td>1000已完成</td></tr>
+    <tr><td>G1</td><td>1000总数</td></tr>
+    <tr><td>H1</td><td>1000进度</td></tr>
+    <tr><td>I1</td><td>最后活跃</td></tr>
+  </table>
+</div>
+
+<div class="step">
+  <p><span class="step-num">3</span> <b>Type the names in Column A and groups in Column B</b></p>
+  <table>
+    <tr><th>Row</th><th>A (name)</th><th>B (group)</th></tr>
+    <tr><td>2</td><td>Aastha</td><td>A</td></tr>
+    <tr><td>3</td><td>Avneet</td><td>B</td></tr>
+    <tr><td>4</td><td>Udit Chauhan</td><td>C</td></tr>
+    <tr><td>5</td><td>Bobby</td><td>D</td></tr>
+    <tr><td>6</td><td>Maria</td><td>E</td></tr>
+  </table>
+</div>
+
+<div class="step">
+  <p><span class="step-num">4</span> <b>Paste formulas — click each box below to copy, then paste into the cell</b></p>
+
+  <p>Click on cell <b>C2</b>, then paste:</p>
+  <div class="formula" onclick="copyFormula(this)">=IFERROR(INDEX(raw_log!E:E,MATCH(2,1/(raw_log!B:B=A2)/(raw_log!D:D="780"),1)),0)</div>
+
+  <p>Click on cell <b>D2</b>, then paste:</p>
+  <div class="formula" onclick="copyFormula(this)">=IFERROR(INDEX(raw_log!F:F,MATCH(2,1/(raw_log!B:B=A2)/(raw_log!D:D="780"),1)),0)</div>
+
+  <p>Click on cell <b>E2</b>, then paste:</p>
+  <div class="formula" onclick="copyFormula(this)">=IF(D2>0,TEXT(C2/D2,"0.0%"),"-")</div>
+
+  <p>Click on cell <b>F2</b>, then paste:</p>
+  <div class="formula" onclick="copyFormula(this)">=IFERROR(INDEX(raw_log!E:E,MATCH(2,1/(raw_log!B:B=A2)/(raw_log!D:D="1000"),1)),0)</div>
+
+  <p>Click on cell <b>G2</b>, then paste:</p>
+  <div class="formula" onclick="copyFormula(this)">=IFERROR(INDEX(raw_log!F:F,MATCH(2,1/(raw_log!B:B=A2)/(raw_log!D:D="1000"),1)),0)</div>
+
+  <p>Click on cell <b>H2</b>, then paste:</p>
+  <div class="formula" onclick="copyFormula(this)">=IF(G2>0,TEXT(F2/G2,"0.0%"),"-")</div>
+
+  <p>Click on cell <b>I2</b>, then paste:</p>
+  <div class="formula" onclick="copyFormula(this)">=IFERROR(TEXT(INDEX(raw_log!A:A,MATCH(2,1/(raw_log!B:B=A2),1)),"MM/DD HH:mm"),"-")</div>
+</div>
+
+<div class="step">
+  <p><span class="step-num">5</span> <b>Copy Row 2 formulas down to Row 6</b></p>
+  <p>Select cells <b>C2 to I2</b> → Copy (<b>Ctrl+C</b>) → Select <b>C3 to I6</b> → Paste (<b>Ctrl+V</b>)</p>
+  <p>The formulas will auto-adjust for each person's name.</p>
+</div>
+
+<div class="step">
+  <p><span class="step-num">6</span> <b>Done! Verify</b></p>
+  <p>If annotators have already refreshed their pages, you should see numbers appearing. If they haven't started yet, you'll see <b>0</b> and <b>-</b> which is normal.</p>
+</div>
+
+<div class="warn">
+  <b>Important:</b> The formulas in C, D, F, G, I columns are array formulas. If Google Sheets shows a popup asking about array formulas, click <b>OK</b> or <b>Allow</b>.
+</div>
+
+<p class="note">If anything looks wrong, message Rajesh. Do not edit the <span class="key">raw_log</span> tab — it receives data automatically.</p>
+
+<script>
+function copyFormula(el) {
+  navigator.clipboard.writeText(el.textContent.replace('📋 click to copy','').replace('✓ copied!','').trim()).then(function() {
+    el.classList.add('copied');
+    setTimeout(function() { el.classList.remove('copied'); }, 2000);
+  });
+}
+</script>
+
+</body>
+</html>
