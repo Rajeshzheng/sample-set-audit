@@ -1029,9 +1029,9 @@ body {
     const annKeys = getAnnotatorKeys(task);
     const allPaths = [];
 
-    // Annotator rows
+    // Annotator rows (prefer English path for display)
     for (const k of annKeys) {
-      const path = task['ann_' + k + '_path'] || '';
+      const path = task['ann_' + k + '_path_en'] || task['ann_' + k + '_path'] || '';
       const action = task['ann_' + k + '_action'] || '';
       const uncertain = task['ann_' + k + '_uncertain'] === 'true';
       allPaths.push(path);
@@ -1065,13 +1065,14 @@ body {
       decisionOptions.appendChild(radioLabel);
     }
 
-    // AI row
-    if (task.ai_path) {
-      allPaths.push(task.ai_path);
+    // AI row (prefer English path for display)
+    const aiDisplay = task.ai_path_en || task.ai_path;
+    if (aiDisplay) {
+      allPaths.push(aiDisplay);
       const row = document.createElement('div');
       row.className = 'ann-row';
       row.innerHTML = '<span class="ann-label" style="color:var(--text-dim)">AI:</span>' +
-        '<span class="ann-path" style="color:#888">' + (task.ai_path || '--') + '</span>' +
+        '<span class="ann-path" style="color:#888">' + (aiDisplay || '--') + '</span>' +
         '<span class="ann-action" style="background:rgba(100,100,100,0.2)">AI</span>';
       container.appendChild(row);
 
@@ -1080,12 +1081,13 @@ body {
       decisionOptions.appendChild(radioAI);
     }
 
-    // Human reference (only for 780)
-    if (task.source === '780' && task.human_ref_path) {
+    // Human reference (only for 780, prefer English path)
+    const humanDisplay = task.human_ref_path_en || task.human_ref_path;
+    if (task.source === '780' && humanDisplay) {
       const row = document.createElement('div');
       row.className = 'ann-row';
       row.innerHTML = '<span class="ann-label" style="color:var(--green)">Human:</span>' +
-        '<span class="ann-path" style="color:var(--green)">' + task.human_ref_path + ' (from 780 dataset)</span>';
+        '<span class="ann-path" style="color:var(--green)">' + humanDisplay + ' (from 780 dataset)</span>';
       container.appendChild(row);
 
       const radioH = document.createElement('label');
@@ -1097,6 +1099,11 @@ body {
     const radioNew = document.createElement('label');
     radioNew.innerHTML = '<input type="radio" name="decision" value="NEW_PATH"> New Path';
     decisionOptions.appendChild(radioNew);
+
+    // Flag Issue option — when no correct path exists in the taxonomy
+    const radioFlag = document.createElement('label');
+    radioFlag.innerHTML = '<input type="radio" name="decision" value="FLAGGED"> <span style="color:var(--red)">Flag Issue</span>';
+    decisionOptions.appendChild(radioFlag);
 
     // Color-highlight disagreement
     highlightDisagreement(task, annKeys);
@@ -1112,10 +1119,14 @@ body {
         if (this.value === 'NEW_PATH') {
           document.getElementById('selectorSection').style.display = 'flex';
           resetSelectors();
+        } else if (this.value === 'FLAGGED') {
+          document.getElementById('selectorSection').style.display = 'none';
+          document.getElementById('fullPathDisplay').textContent = '(Flagged — fill in Reason below)';
+          document.getElementById('noteInput').focus();
         } else {
           document.getElementById('selectorSection').style.display = 'none';
           // Auto-fill path display
-          const rPath = getReviewPathForDecision(task, this.value);
+          const rPath = getReviewPathEnForDecision(task, this.value) || getReviewPathForDecision(task, this.value);
           document.getElementById('fullPathDisplay').textContent = rPath || '--';
         }
       });
@@ -1265,8 +1276,11 @@ body {
         document.getElementById('selectorSection').style.display = 'flex';
         resetSelectors();
         setSelectorsFromPath(saved.review_path);
+      } else if (saved.decision_source === 'FLAGGED') {
+        document.getElementById('selectorSection').style.display = 'none';
+        document.getElementById('fullPathDisplay').textContent = '(Flagged — see Reason below)';
       } else {
-        document.getElementById('fullPathDisplay').textContent = saved.review_path || '--';
+        document.getElementById('fullPathDisplay').textContent = saved.review_path_en || saved.review_path || '--';
       }
       document.getElementById('noteInput').value = saved.review_note || '';
     }
@@ -1287,7 +1301,15 @@ body {
     let reviewPath = '';
     let reviewPathEn = '';
 
-    if (currentDecision === 'NEW_PATH') {
+    if (currentDecision === 'FLAGGED') {
+      // Flag Issue: no path needed, but reason is required
+      const note = document.getElementById('noteInput').value.trim();
+      if (!note) {
+        showToast('Flag Issue requires a reason. Please explain in the Reason field (e.g. "Should be XX but taxonomy lacks this category").');
+        return false;
+      }
+      // reviewPath left empty — merge_reviews.py will auto-send to arbitration
+    } else if (currentDecision === 'NEW_PATH') {
       const sel = getSelectedPath();
       reviewPath = sel.path;
       reviewPathEn = sel.pathEn;
@@ -1300,9 +1322,8 @@ body {
       reviewPathEn = getReviewPathEnForDecision(task, currentDecision);
     }
 
-    // P0-3: Validate review_path is non-empty regardless of decision_source.
-    // A PICK_ANN_x choice may resolve to an empty path (e.g. uncertain annotator).
-    if (!reviewPath) {
+    // P0-3: Validate review_path is non-empty (skip for FLAGGED).
+    if (!reviewPath && currentDecision !== 'FLAGGED') {
       showToast('Selected path is empty (annotator may be uncertain). Please choose another option or use New Path.');
       return false;
     }
