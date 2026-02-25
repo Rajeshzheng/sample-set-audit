@@ -658,7 +658,7 @@ kbd {
     <h1>Sample Set <span>Audit</span> System</h1>
     <div class="phase-badge">
       <span class="dot"></span>
-      Phase 1 — Annotation in progress
+      Phase 2 — Review in progress
     </div>
     <div class="contact">Admin contact: Rajesh · <a href="mailto:rajeshzheng@users.noreply.github.com">Email</a></div>
   </header>
@@ -899,8 +899,31 @@ kbd {
       and update the phase-badge text in the header.
     -->
 
-    <div class="note-box" style="margin-bottom:16px; text-align:center;">
-      Phase 2 has not started yet. Read the guide below so you're prepared when it begins.
+    <div class="note-box" style="margin-bottom:16px; text-align:center; border-left-color: var(--green); background: rgba(74,222,128,0.08); color: var(--green);">
+      Phase 2 is NOW ACTIVE — Please complete your reviews.
+    </div>
+
+    <!-- Annotation Merge Stats -->
+    <div class="content-block">
+      <div class="section-title"><span class="num">0</span> Annotation Results Summary</div>
+      <div class="overview-grid">
+        <div class="overview-card">
+          <div class="label">Total Images</div>
+          <div class="value">1,780</div>
+        </div>
+        <div class="overview-card">
+          <div class="label">Auto Accepted</div>
+          <div class="value" style="color:var(--green);">1,718 (96.5%)</div>
+        </div>
+        <div class="overview-card">
+          <div class="label">Need Your Review</div>
+          <div class="value" style="color:var(--accent);">62 (3.5%)</div>
+        </div>
+        <div class="overview-card">
+          <div class="label">Annotator Agreement</div>
+          <div class="value">86.5% – 93.8%</div>
+        </div>
+      </div>
     </div>
 
     <div class="content-block">
@@ -939,10 +962,15 @@ kbd {
         <div class="step">
           <div class="step-num">3</div>
           <div class="step-body">
-            <h5>Upload the review CSV</h5>
-            <p>The Admin will provide you with a CSV file containing items that need review.</p>
+            <h5>Download & upload the review CSV</h5>
+            <p>Download the review file below, then upload it in the Reviewer Tool.</p>
           </div>
         </div>
+      </div>
+      <div class="tool-links-row" style="margin-bottom:16px;">
+        <a class="tool-link secondary" href="data/stage1_needs_review.csv" download style="border-color:var(--accent); color:var(--accent);">Download Review Tasks CSV (62 items)</a>
+      </div>
+      <div class="steps">
         <div class="step">
           <div class="step-num">4</div>
           <div class="step-body">
@@ -974,6 +1002,10 @@ kbd {
         </ul>
       </div>
     </details>
+
+    <div class="note-box" style="border-left-color:var(--red); background:rgba(248,113,113,0.08); color:var(--red);">
+      Important: R1 and R2 must review INDEPENDENTLY. Do NOT discuss your decisions with each other until both have completed and exported.
+    </div>
 
     <div class="content-block">
       <div class="section-title"><span class="num">3</span> After You Finish</div>
