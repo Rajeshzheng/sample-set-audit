@@ -658,7 +658,7 @@ kbd {
     <h1>Sample Set <span>Audit</span> System</h1>
     <div class="phase-badge">
       <span class="dot"></span>
-      Phase 2 — Review in progress
+      Phase 3 — Arbitration in progress
     </div>
     <div class="contact">Admin contact: Rajesh · <a href="mailto:rajeshzheng@users.noreply.github.com">Email</a></div>
   </header>
@@ -698,16 +698,19 @@ kbd {
 
   <!-- ═══════════════ TAB BAR ═══════════════ -->
   <div class="tab-bar">
-    <button class="tab-btn active" onclick="switchTab('annotator')">
+    <button class="tab-btn" onclick="switchTab('annotator')">
       <span class="icon">📝</span> Annotator Guide
     </button>
     <button class="tab-btn" onclick="switchTab('reviewer')" id="reviewerTabBtn">
       <span class="icon">🔍</span> Reviewer Guide
     </button>
+    <button class="tab-btn active" onclick="switchTab('arbitrator')" id="arbitratorTabBtn">
+      <span class="icon">⚖️</span> Arbitrator Guide
+    </button>
   </div>
 
   <!-- ═══════════════ ANNOTATOR TAB ═══════════════ -->
-  <div class="tab-content active" id="tab-annotator">
+  <div class="tab-content" id="tab-annotator">
 
     <!-- Team Assignment -->
     <div class="content-block">
@@ -899,8 +902,8 @@ kbd {
       and update the phase-badge text in the header.
     -->
 
-    <div class="note-box" style="margin-bottom:16px; text-align:center; border-left-color: var(--green); background: rgba(74,222,128,0.08); color: var(--green);">
-      Phase 2 is NOW ACTIVE — Please complete your reviews.
+    <div class="note-box" style="margin-bottom:16px; text-align:center; border-left-color: var(--text-dim); background: rgba(122,120,136,0.08); color: var(--text-dim);">
+      Phase 2 Review COMPLETED — Thank you Sandy &amp; Upasna! Results: 19 agreed (sent to gold standard), 43 disagreed/flagged (sent to arbitration).
     </div>
 
     <!-- Annotation Merge Stats -->
@@ -1027,6 +1030,129 @@ kbd {
   </div>
   <!-- END REVIEWER TAB -->
 
+  <!-- ═══════════════ ARBITRATOR TAB ═══════════════ -->
+  <div class="tab-content active" id="tab-arbitrator">
+
+    <div class="note-box" style="margin-bottom:16px; text-align:center; border-left-color: var(--green); background: rgba(74,222,128,0.08); color: var(--green);">
+      Phase 3 Arbitration is NOW ACTIVE — 43 items need your final decision.
+    </div>
+
+    <!-- Review Merge Stats -->
+    <div class="content-block">
+      <div class="section-title"><span class="num">0</span> Review Results Summary</div>
+      <div class="overview-grid">
+        <div class="overview-card">
+          <div class="label">Reviewed Items</div>
+          <div class="value">62</div>
+        </div>
+        <div class="overview-card">
+          <div class="label">Reviewers Agreed</div>
+          <div class="value" style="color:var(--green);">19 (30.6%)</div>
+        </div>
+        <div class="overview-card">
+          <div class="label">Need Arbitration</div>
+          <div class="value" style="color:var(--accent);">43 (69.4%)</div>
+        </div>
+        <div class="overview-card">
+          <div class="label">Flagged by Reviewers</div>
+          <div class="value" style="color:var(--red);">12 items</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-block">
+      <div class="section-title"><span class="num">1</span> Your Role</div>
+      <div class="team-grid">
+        <div class="team-card" style="border-color: rgba(167,139,250,0.3);">
+          <h4>Arbitrator (HQ)</h4>
+          <div class="lead">Final decision maker</div>
+          <ul><li>Resolves cases where two reviewers disagreed or flagged issues</li></ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-block">
+      <div class="section-title"><span class="num">2</span> Quick Start</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h5>Open the Arbitrator Tool</h5>
+            <p>Click the button below to open the arbitration interface.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h5>Log in</h5>
+            <p>Enter your name to start.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h5>Download &amp; upload the arbitration CSV</h5>
+            <p>Download the file below, then upload it in the Arbitrator Tool.</p>
+          </div>
+        </div>
+      </div>
+      <div class="tool-links-row" style="margin-bottom:16px;">
+        <a class="tool-link secondary" href="data/arbitration_input.csv" download style="border-color:var(--accent); color:var(--accent);">Download Arbitration CSV (43 items)</a>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <h5>Review each item</h5>
+            <p>You'll see annotator labels, reviewer decisions, and any flag reasons. Choose the final correct classification, or select a new path if none are right.</p>
+          </div>
+        </div>
+      </div>
+      <div class="tool-links-row">
+        <a class="tool-link teal-btn" href="tools/arbitrator_tool.html">Open Arbitrator Tool →</a>
+      </div>
+    </div>
+
+    <details>
+      <summary>How to Arbitrate</summary>
+      <div class="section-body">
+        <p style="margin-bottom:12px; font-size:14px;">For each item, you will see:</p>
+        <ul style="font-size:14px;">
+          <li><strong>The image</strong> being classified</li>
+          <li><strong>Annotator labels</strong> — what each annotator originally chose</li>
+          <li><strong>Reviewer R1 &amp; R2 decisions</strong> — what each reviewer picked (or <span style="color:#f87171;">FLAGGED</span> if they couldn't decide)</li>
+          <li><strong>Reviewer notes</strong> — explanations, especially for flagged items</li>
+          <li><strong>AI suggestion &amp; Human reference</strong> (if available)</li>
+        </ul>
+        <p style="margin-top:14px; font-size:14px;"><strong>Decision options:</strong></p>
+        <ul style="font-size:14px;">
+          <li><strong>Pick Annotator X</strong> — agree with one annotator's label</li>
+          <li><strong>Pick R1 / Pick R2</strong> — agree with one reviewer's decision</li>
+          <li><strong>Pick AI</strong> — agree with the original AI suggestion</li>
+          <li><strong>New Path</strong> — none are correct; select your own path from the taxonomy</li>
+        </ul>
+      </div>
+    </details>
+
+    <div class="content-block">
+      <div class="section-title"><span class="num">3</span> After You Finish</div>
+      <ol style="font-size:14px; padding-left:20px;">
+        <li style="margin-bottom:8px;">Click <strong>"导出 CSV"</strong> (Export CSV) in the Arbitrator Tool.</li>
+        <li>Send the exported CSV file to <strong>Admin (Rajesh)</strong>.</li>
+      </ol>
+    </div>
+
+    <div class="content-block">
+      <div class="section-title"><span class="num">4</span> Resources</div>
+      <div class="tool-links-row">
+        <a class="tool-link teal-btn" href="tools/arbitrator_tool.html">⚖️ Arbitrator Tool</a>
+        <a class="tool-link secondary" href="https://rajeshzheng.github.io/ls-taxonomy-v2_202602/" target="_blank">🌳 Taxonomy Viewer</a>
+      </div>
+    </div>
+
+  </div>
+  <!-- END ARBITRATOR TAB -->
+
   <!-- ═══════════════ FOOTER ═══════════════ -->
   <footer class="footer">
     <a href="https://rajeshzheng.github.io/ls-taxonomy-v2_202602/" target="_blank">Taxonomy Viewer</a>
@@ -1051,9 +1177,12 @@ function switchTab(tab) {
   if (tab === 'annotator') {
     document.querySelector('.tab-btn:first-child').classList.add('active');
     document.getElementById('tab-annotator').classList.add('active');
-  } else {
+  } else if (tab === 'reviewer') {
     document.getElementById('reviewerTabBtn').classList.add('active');
     document.getElementById('tab-reviewer').classList.add('active');
+  } else if (tab === 'arbitrator') {
+    document.getElementById('arbitratorTabBtn').classList.add('active');
+    document.getElementById('tab-arbitrator').classList.add('active');
   }
 }
 </script>

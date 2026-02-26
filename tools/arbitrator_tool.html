@@ -1012,7 +1012,7 @@ body {
       group.innerHTML = '<div class="group-title">标注员标注</div>';
 
       for (const k of annKeys) {
-        const path = task['ann_' + k + '_path'] || '';
+        const path = task['ann_' + k + '_path_en'] || task['ann_' + k + '_path'] || '';
         const action = task['ann_' + k + '_action'] || '';
         const uncertain = task['ann_' + k + '_uncertain'] === 'true';
 
@@ -1044,9 +1044,12 @@ body {
         const row = document.createElement('div');
         const agree = task.rev1_path === task.rev2_path;
         row.className = 'history-row ' + (agree ? 'agree' : 'disagree');
+        const r1Display = task.rev1_source === 'FLAGGED'
+          ? '<span style="color:var(--red)">(FLAGGED)</span>'
+          : (task.rev1_path_en || task.rev1_path || '--');
         row.innerHTML =
           '<span class="row-label">审核员 R1:</span>' +
-          '<span class="row-path">' + (task.rev1_path || '--') + '</span>' +
+          '<span class="row-path">' + r1Display + '</span>' +
           '<span class="row-meta" style="background:rgba(79,195,247,0.2)">' + (task.rev1_source || '') + '</span>';
         if (task.rev1_note) {
           row.innerHTML += '<br><span style="font-size:11px;color:var(--text-dim);margin-left:58px;">理由: ' + task.rev1_note + '</span>';
@@ -1062,9 +1065,12 @@ body {
         const row = document.createElement('div');
         const agree = task.rev1_path === task.rev2_path;
         row.className = 'history-row ' + (agree ? 'agree' : 'disagree');
+        const r2Display = task.rev2_source === 'FLAGGED'
+          ? '<span style="color:var(--red)">(FLAGGED)</span>'
+          : (task.rev2_path_en || task.rev2_path || '--');
         row.innerHTML =
           '<span class="row-label">审核员 R2:</span>' +
-          '<span class="row-path">' + (task.rev2_path || '--') + '</span>' +
+          '<span class="row-path">' + r2Display + '</span>' +
           '<span class="row-meta" style="background:rgba(79,195,247,0.2)">' + (task.rev2_source || '') + '</span>';
         if (task.rev2_note) {
           row.innerHTML += '<br><span style="font-size:11px;color:var(--text-dim);margin-left:58px;">理由: ' + task.rev2_note + '</span>';
@@ -1087,7 +1093,7 @@ body {
       row.className = 'history-row neutral';
       row.innerHTML =
         '<span class="row-label">AI:</span>' +
-        '<span class="row-path" style="color:#888">' + task.ai_path + '</span>';
+        '<span class="row-path" style="color:#888">' + (task.ai_path_en || task.ai_path) + '</span>';
       group.appendChild(row);
       container.appendChild(group);
 
@@ -1105,7 +1111,7 @@ body {
       row.className = 'history-row neutral';
       row.innerHTML =
         '<span class="row-label">人工:</span>' +
-        '<span class="row-path" style="color:var(--green)">' + task.human_ref_path + '</span>';
+        '<span class="row-path" style="color:var(--green)">' + (pathToEn(task.human_ref_path) || task.human_ref_path) + '</span>';
       group.appendChild(row);
       container.appendChild(group);
     }
@@ -1126,7 +1132,7 @@ body {
           resetSelectors();
         } else {
           document.getElementById('selectorSection').style.display = 'none';
-          const p = getArbPathForDecision(task, this.value);
+          const p = getArbPathEnForDecision(task, this.value) || getArbPathForDecision(task, this.value);
           document.getElementById('fullPathDisplay').textContent = p || '--';
         }
       });
@@ -1147,8 +1153,14 @@ body {
 
   function getArbPathEnForDecision(task, decision) {
     if (!task || !decision) return '';
-    const zhPath = getArbPathForDecision(task, decision);
-    return pathToEn(zhPath);
+    if (decision.startsWith('PICK_ANN_')) {
+      const k = decision.replace('PICK_ANN_', '');
+      return task['ann_' + k + '_path_en'] || pathToEn(task['ann_' + k + '_path'] || '');
+    }
+    if (decision === 'PICK_R1') return task.rev1_path_en || pathToEn(task.rev1_path || '');
+    if (decision === 'PICK_R2') return task.rev2_path_en || pathToEn(task.rev2_path || '');
+    if (decision === 'PICK_AI') return task.ai_path_en || pathToEn(task.ai_path || '');
+    return '';
   }
 
   function pathToEn(zhPath) {
@@ -1208,7 +1220,7 @@ body {
         resetSelectors();
         setSelectorsFromPath(saved.final_path);
       } else {
-        document.getElementById('fullPathDisplay').textContent = saved.final_path || '--';
+        document.getElementById('fullPathDisplay').textContent = saved.final_path_en || saved.final_path || '--';
       }
       document.getElementById('noteInput').value = saved.arb_note || '';
     }
